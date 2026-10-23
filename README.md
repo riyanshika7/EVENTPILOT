@@ -1,183 +1,231 @@
 # EventPilot AI — Plan Less, Celebrate More 🦥
 
-> **Hacktoberfest Challenge Theme:**  
-> *“Channel Your Inner Sloth — build something that does the work so you don't have to.”*
+> **Hacktoberfest Prize-Focused Implementation**  
+> Target Categories:
+> 1. **Best Use of Render**
+> 2. **Best Use of Gemma**
+> 3. **Best Use of Sentry Agent Tracing**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-forest.svg)](https://opensource.org/licenses/MIT)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com)
-[![Ollama](https://img.shields.io/badge/Ollama-Open--Weight%20Inference-black.svg)](https://ollama.com)
-[![Tests: Pytest](https://img.shields.io/badge/Tests-8%20Passed-brightgreen.svg)](https://pytest.org)
+[![Gemma](https://img.shields.io/badge/Gemma-Instruction--Tuned-4285F4.svg)](https://ai.google.dev/gemma)
+[![Render](https://img.shields.io/badge/Render-Deployable-46E3B7.svg)](https://render.com)
+[![Sentry Agent Tracing](https://img.shields.io/badge/Sentry-Agent%20Tracing-362D59.svg)](https://sentry.io)
+[![Tests: Pytest](https://img.shields.io/badge/Tests-10%20Passed-brightgreen.svg)](https://pytest.org)
 
-**EventPilot AI** is an open-source, GenAI-powered event planning companion for birthdays, weddings, college fests, community gatherings, and milestone celebrations. Enter your event details once, and EventPilot AI generates an editable, budget-aware plan with itemized allocations, automated preparation milestones, actionable vendor interview questions, and shopping checklists.
+**EventPilot AI** is an open-source, GenAI-powered web application built for the Hacktoberfest theme: *“Channel Your Inner Sloth — build something that does the work so you don't have to.”* Enter your event details once, and EventPilot AI generates an editable, budget-aware plan with itemized allocations, automated preparation milestones, actionable vendor interview questions, and shopping checklists.
+
+**Core Tagline:** *You celebrate. EventPilot handles the planning.*
 
 ---
 
-## 🦥 Core Philosophy & Highlights
+## 🏆 Hacktoberfest Prize Category Alignments
 
-- **Channel Your Inner Sloth:** Tedious event math, timeline calculations, and vendor checklists are handled for you in seconds.
-- **Genuine Open-Weight AI Inference:** Integrates with local open-weight LLMs via [Ollama](https://ollama.com) (`qwen2.5-coder:1.5b` candidate, fully configurable) with zero cloud fees and zero telemetry.
-- **Deterministic BudgetGuard:** Never trusts an LLM with arithmetic. JavaScript and Python calculate every single currency allocation, remaining balance, and over-budget threshold deterministically.
-- **LazyTimeline:** Computes realistic deadlines relative to your event date, automatically flags overdue preparations, and updates milestones if dates shift.
-- **Vendor Quote Tracker:** Compares AI-generated cost estimates against real user-entered vendor quotes.
-- **Local Persistence & Export:** Built-in SQLite database stores your plans locally. Export anytime to clean JSON or print-ready PDF summaries.
-- **Lightweight & Hardware-Friendly:** Designed specifically to run on 8 GB RAM systems with integrated CPU graphics without melting your system.
+### 1. Best Use of Render
+- **Infrastructure-as-Code:** Deployed via [`render.yaml`](render.yaml) as a native Python web service on Render's free tier.
+- **Production Architecture:** FastAPI binds to `0.0.0.0` and respects dynamic `$PORT`. Implements a zero-overhead `/api/health` check endpoint compatible with Render health monitoring.
+- **Decoupled Hosted AI Inference:** Recognizes that Render free web instances do not contain dedicated GPUs or local Ollama daemons. Deployed instances cleanly route inference to hosted Gemma endpoints (e.g. Groq free tier with `gemma2-9b-it`) or fall back gracefully to deterministic demo planning with zero crashes.
+- **Storage Transparency:** Explicitly documents SQLite file persistence trade-offs on Render's ephemeral filesystem vs. production external database URLs.
+
+### 2. Best Use of Gemma
+- **Instruction-Tuned Architecture:** Designed specifically to leverage Google's open-weight **Gemma** family (`gemma2:2b`, `gemma:2b` locally, or `gemma2-9b-it` hosted).
+- **Flexible Provider Adapter:** Isolates model communication behind an async provider interface in [`backend/ai_service.py`](backend/ai_service.py), supporting:
+  - Local Ollama (`http://localhost:11434`)
+  - OpenAI-compatible hosted endpoints (Groq, Together, OpenRouter, vLLM)
+  - Offline demo mode for zero-latency testing
+- **Strict JSON Enforcement & Deterministic Grounding:** Gemma provides creative theming, schedules, vendor questions, and suggestions. Python deterministically computes all budget allocations, remaining balances, date offsets, and overdue deadlines.
+- **Hardware-Friendly on 8 GB RAM:** Specifically tested with lightweight Gemma models (`gemma2:2b` / `gemma:2b`) requiring under 2 GB RAM.
+
+### 3. Best Use of Sentry Agent Tracing
+- **Official SDK Integration:** Integrates `sentry-sdk` with FastAPI and Starlette spans.
+- **Granular AI Workflow Spans:** Each generation decomposes into connected spans:
+  - `event_plan.generate` (Root generation span)
+  - `event_plan.validate_input` (Input validation)
+  - `event_plan.model_inference` (HTTP call to Gemma model with token metadata)
+  - `event_plan.parse_output` (Pydantic schema validation)
+  - `event_plan.calculate_budget` (Deterministic financial allocations)
+  - `event_plan.build_timeline` (Date calculation & overdue checks)
+  - `event_plan.persist` (SQLite storage)
+- **Privacy-Safe Telemetry:** Defaults `send_default_pii=False`. Captures model names, durations, token counts, and error classes without leaking user event notes, addresses, or guest names.
+- **Local Diagnostics Ring Buffer:** Built-in in-memory diagnostic monitor exposed via `/api/diagnostics` for real-time latency and success tracking during local development.
 
 ---
 
 ## 📸 Screenshots & Interface Previews
 
-| Dashboard Overview | Event Generation Flow |
+| Dashboard Overview | Event Creation Form |
 | :---: | :---: |
-| *(Screenshot Placeholder: Dashboard with Sloth Mascot, stats KPI cards, and recent events)* | *(Screenshot Placeholder: Friendly multi-field event creation form)* |
+| *(Screenshot Placeholder: Sloth Mascot hero, metric KPI cards, recent event list)* | *(Screenshot Placeholder: Multi-field form with budget, venue, food, and culture settings)* |
 
-| BudgetGuard & Calculations | LazyTimeline & Checklists |
+| BudgetGuard & Allocations | LazyTimeline & Checklists |
 | :---: | :---: |
-| *(Screenshot Placeholder: Real-time progress bar, itemized costs, over-budget warnings)* | *(Screenshot Placeholder: Preparation milestones, phases, overdue task alerts)* |
+| *(Screenshot Placeholder: Real-time budget progress bar, over-budget warnings, itemized costs)* | *(Screenshot Placeholder: Phase-grouped preparation milestones with overdue badges)* |
+
+| Sentry Agent Tracing | Vendor Quote Tracker |
+| :---: | :---: |
+| *(Screenshot Placeholder: Sentry performance waterfall showing event_plan.* spans)* | *(Screenshot Placeholder: AI estimated cost vs. user-entered vendor quotes)* |
 
 ---
 
-## 🏗 Architecture Overview
+## 🏗 Architecture Diagram
 
 ```mermaid
 graph LR
     subgraph Frontend ["Frontend (HTML5 / CSS3 / Vanilla JS)"]
         UI[Responsive Sloth UI]
-        BG[BudgetGuard Realtime Engine]
+        BG[BudgetGuard Realtime Recalculations]
         TL[LazyTimeline View]
     end
 
     subgraph Backend ["FastAPI Backend (Python)"]
         API[REST Endpoints]
         Planner[Deterministic Planner & Validator]
-        AIService[AI Service Client]
+        AIService[Gemma Provider Adapter]
+        Obs[Sentry Agent Tracing & Diagnostics]
     end
 
-    subgraph Storage ["Local Storage"]
-        DB[(SQLite: eventpilot.db)]
+    subgraph External ["Inference & Observability"]
+        GemmaLocal[Local Ollama: gemma2:2b]
+        GemmaHosted[Hosted Gemma API: gemma2-9b-it]
+        SentryCloud[Sentry Dashboard]
     end
 
-    subgraph LLM ["Local AI Inference"]
-        Ollama[Ollama HTTP API :11434]
-        Model["qwen2.5-coder:1.5b / Configurable"]
+    subgraph Storage ["Persistence"]
+        DB[(SQLite / Database Repo)]
     end
 
-    UI -->|REST JSON| API
+    UI -->|REST /api/*| API
+    API --> Obs
+    Obs -->|Telemetry Spans| SentryCloud
     API --> Planner
     Planner --> AIService
-    AIService -->|Local HTTP POST| Ollama
-    Ollama --> Model
-    Planner -->|Validated Schema| DB
-    BG -->|Instant DOM Recalculations| UI
+    AIService -->|Local HTTP| GemmaLocal
+    AIService -->|Hosted API| GemmaHosted
+    Planner -->|Save / Fetch| DB
+    BG -->|Instant DOM Math| UI
 ```
 
 ---
 
 ## 🛠 Prerequisites
 
-- **Operating System:** Windows 10/11 (or macOS / Linux).
-- **Python:** Python 3.10 to 3.14.
-- **Ollama:** Installed and running locally ([Download Ollama](https://ollama.com/download)).
-- **RAM:** Minimum 8 GB RAM (runs on CPU inference without dedicated GPU).
+- **OS:** Windows 10/11, macOS, or Linux.
+- **Python:** 3.10 to 3.14.
+- **Memory:** 8 GB RAM (runs on CPU inference without dedicated GPU).
+- **Ollama (Optional for local AI):** [Download Ollama](https://ollama.com/download).
 
 ---
 
 ## 🚀 Quickstart Guide (Windows PowerShell)
 
-### 1. Clone the Repository
+### 1. Clone Repository & Install Dependencies
 ```powershell
 git clone https://github.com/your-username/eventpilot-ai.git
 cd eventpilot-ai
-```
-
-### 2. Set Up Python Environment & Dependencies
-```powershell
 python -m pip install -r requirements.txt
 ```
 
-### 3. Install & Start Ollama
-1. Download Ollama for Windows from [ollama.com/download/windows](https://ollama.com/download/windows).
-2. Open PowerShell and pull the candidate lightweight model:
-```powershell
-ollama pull qwen2.5-coder:1.5b
-```
-3. Verify Ollama is running:
-```powershell
-ollama list
-```
-
-### 4. Configure Environment (Optional)
-A `.env.example` file is provided. Copy it to `.env` if you wish to customize ports or models:
+### 2. Configure Environment
+Copy `.env.example` to `.env`:
 ```powershell
 Copy-Item .env.example .env
 ```
-Default configuration:
+Default local settings:
 ```ini
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen2.5-coder:1.5b
-OLLAMA_TIMEOUT_SECONDS=45
-DATABASE_PATH=eventpilot.db
+AI_PROVIDER=ollama
+GEMMA_MODEL=gemma2:2b
+INFERENCE_BASE_URL=http://localhost:11434
+SENTRY_DSN=""
+SENTRY_ENVIRONMENT=development
 PORT=8000
-HOST=127.0.0.1
+HOST=0.0.0.0
 ```
 
-### 5. Start the Application
-Run the FastAPI backend (serves both API and frontend UI):
+### 3. Local Gemma Setup with Ollama
+Pull the lightweight Gemma 2B model:
 ```powershell
-python -m uvicorn backend.main:app --port 8000 --host 127.0.0.1 --reload
+ollama pull gemma2:2b
 ```
+*(If on constrained hardware, `gemma:2b` or `gemma3:1b` can also be configured).*
 
-### 6. Open in Browser
-Open your web browser and navigate to:
+### 4. Run the Application
+```powershell
+python -m uvicorn backend.main:app --port 8000 --host 0.0.0.0 --reload
 ```
-http://127.0.0.1:8000
+Open in your browser:
 ```
-- Interactive API documentation is available at: `http://127.0.0.1:8000/docs`
+http://localhost:8000
+```
+Interactive Swagger API docs: `http://localhost:8000/docs`
 
 ---
 
-## 🤖 How the Open-Weight AI Model Is Used
+## ☁️ Render Deployment Guide
 
-1. **Structured JSON Prompting:** When you submit event parameters (type, guests, budget, venue, cultural preferences), EventPilot AI constructs a strict JSON-spec prompt.
-2. **Local Inference:** The backend sends the prompt to `http://localhost:11434/api/generate` with `"format": "json"`.
-3. **Deterministic Separation of Concerns:**
-   - **AI generates:** Creative themes, activity schedules, suggested vendor scopes, questions to ask vendors, and shopping lists.
-   - **Backend computes:** Proportional budget allocations, currency roundings, deadline calculations, and overdue flags.
-4. **Graceful Fallback:** If Ollama is temporarily stopped, or on low-end hardware where pure CPU generation times out, EventPilot AI seamlessly activates a deterministic rule-based generator clearly labeled in the UI so planning is never interrupted.
+EventPilot AI includes a turnkey [`render.yaml`](render.yaml) specification:
 
-### Changing the AI Model
-To use another open-weight model (e.g., `llama3.2:1b`, `mistral`, or `phi3:mini`), pull it with Ollama and update your `.env`:
-```powershell
-ollama pull llama3.2:1b
-```
-Set in `.env`:
-```ini
-OLLAMA_MODEL=llama3.2:1b
-```
-Restart the server, and the UI status badge will immediately reflect the new model.
+1. **Push to GitHub:** Ensure your code is pushed to your GitHub repository.
+2. **Log into Render:** Go to [dashboard.render.com](https://dashboard.render.com).
+3. **New Blueprint / Web Service:**
+   - Select **New +** -> **Blueprint**, and connect your GitHub repository.
+   - Render detects `render.yaml` automatically.
+4. **Environment Variables on Render:**
+   - For **Hosted Gemma**:
+     - `AI_PROVIDER`: `openai_compatible`
+     - `GEMMA_MODEL`: `gemma2-9b-it` (e.g. via Groq free tier)
+     - `INFERENCE_BASE_URL`: `https://api.groq.com/openai/v1`
+     - `INFERENCE_API_KEY`: `<your_groq_api_key>`
+   - For **Sentry Tracing**:
+     - `SENTRY_DSN`: `https://your-key@sentry.io/project-id`
+     - `SENTRY_ENVIRONMENT`: `production`
+5. **Deploy:** Click **Apply**. Render will build dependencies, start `uvicorn`, and run automated health checks on `/api/health`.
+
+> **Notice regarding persistence on Render Free Tier:** Render free web services utilize an ephemeral filesystem. Data saved in `eventpilot.db` will reset when the instance sleeps or restarts. For persistent production data, connect a managed database via `DATABASE_URL`.
+
+---
+
+## 🔍 Sentry Agent Tracing Setup & Walkthrough
+
+1. Create a free account at [sentry.io](https://sentry.io) and create a **Python / FastAPI** project.
+2. Copy your Project DSN and add it to your `.env`:
+   ```ini
+   SENTRY_DSN="https://examplePublicKey@o0.ingest.sentry.io/0"
+   SENTRY_ENVIRONMENT="development"
+   SENTRY_TRACES_SAMPLE_RATE=1.0
+   ```
+3. Start the server and generate an event plan from the UI.
+4. Open the **Performance / Traces** tab in Sentry:
+   - Locate the root transaction: `POST /api/events/generate`
+   - Inspect the child spans:
+     - `event_plan.validate_input`
+     - `event_plan.model_inference` (includes provider, model tag, character count)
+     - `event_plan.parse_output`
+     - `event_plan.calculate_budget`
+     - `event_plan.build_timeline`
+     - `event_plan.persist`
+5. **Local Telemetry Verification:** Visit `http://localhost:8000/api/diagnostics` to view local average durations, success rates, and token counts directly.
 
 ---
 
 ## 🧪 Automated Testing
 
-EventPilot AI includes a comprehensive test suite covering API contracts, deterministic budget math, overdue milestone dates, and SQLite persistence.
+EventPilot AI includes 10 automated unit and integration tests:
 
-Run the test suite with PowerShell:
 ```powershell
 python -m pytest tests -v
 ```
 
-Expected result:
-```
-tests/test_api.py::test_health_endpoint PASSED
-tests/test_api.py::test_model_status_endpoint PASSED
-tests/test_api.py::test_generate_event_demo_mode PASSED
-tests/test_api.py::test_save_and_retrieve_event PASSED
-tests/test_planner.py::test_fallback_plan_generation PASSED
-tests/test_planner.py::test_deterministic_budget_calculation PASSED
-tests/test_planner.py::test_over_budget_detection_and_recalculation PASSED
-tests/test_planner.py::test_date_math_and_overdue_tasks PASSED
-======================== 8 passed in 0.88s ========================
-```
+**Test Coverage:**
+- Health & environment reporting (`test_health_endpoint`)
+- Gemma connection status query (`test_model_status_endpoint`)
+- Diagnostic telemetry buffer verification (`test_diagnostics_endpoint`)
+- Demo mode generation & span recording (`test_generate_event_demo_mode_records_span`)
+- Input validation & bad payload rejection (`test_generate_validation_failure`)
+- SQLite repository full lifecycle CRUD (`test_save_and_retrieve_event_lifecycle`)
+- Deterministic budget math & rounding balance (`test_deterministic_budget_calculation`)
+- Real-time over-budget threshold detection (`test_over_budget_detection_and_recalculation`)
+- Task deadline offsets and overdue calculations (`test_date_math_and_overdue_tasks`)
+- Fallback schema validation (`test_demo_plan_generation`)
 
 ---
 
@@ -185,36 +233,26 @@ tests/test_planner.py::test_date_math_and_overdue_tasks PASSED
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/health` | Backend health check and application version. |
-| `GET` | `/api/model/status` | Real-time check of Ollama connection and model readiness. |
-| `POST` | `/api/events/generate` | Generates a validated event plan via Ollama or demo fallback. |
+| `GET` | `/api/health` | Health check and telemetry status for Render monitoring. |
+| `GET` | `/api/model/status` | Real-time connectivity status of configured Gemma model. |
+| `GET` | `/api/diagnostics` | In-memory telemetry summary (latency, success rates). |
+| `POST` | `/api/events/generate` | Generates a validated event plan via Gemma or demo mode. |
 | `POST` | `/api/events` | Saves an event plan to SQLite. |
-| `GET` | `/api/events` | Retrieves all saved events with completion summaries. |
+| `GET` | `/api/events` | Retrieves all saved event summaries. |
 | `GET` | `/api/events/{event_id}` | Retrieves full event plan by ID. |
-| `PUT` | `/api/events/{event_id}` | Updates existing event tasks, quotes, or budget allocations. |
+| `PUT` | `/api/events/{event_id}` | Updates existing event tasks, quotes, or allocations. |
 | `DELETE`| `/api/events/{event_id}` | Deletes an event from the database. |
 
 ---
 
 ## ⚠️ Limitations & Hardware Notes
 
-- **CPU Inference Speed on 8 GB RAM:** Pure CPU inference on Windows without AVX2 or dedicated GPU can be slow on large token contexts. The backend uses a configurable 45-second timeout and lightweight prompts. If Ollama takes longer on your CPU, you can increase `OLLAMA_TIMEOUT_SECONDS` in `.env` or toggle the **"Instant Demo Mode"** checkbox in the form.
-- **Mock / Estimated Pricing:** All prices provided by AI are estimates. EventPilot AI never invents verified vendors or live market availability; vendor names and quotes must be entered directly by the user.
-- **Local Deployment:** When deploying to hosts like Render or Railway, configure an external Ollama endpoint or use the deterministic planner, as cloud free tiers typically do not provide local Ollama instances.
+- **Local 8 GB RAM Considerations:** Running local models on CPU takes 20–45s per generation depending on background workloads. A **"Force Instant Demo Mode"** toggle is provided for instant UI verification without waiting on inference.
+- **Estimated Pricing Disclaimer:** AI-generated costs are initial planning estimates. Users enter real quotes directly into the quote comparison table.
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing & License
 
-Contributions are warmly welcomed for Hacktoberfest and beyond!
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feature/SlothSuperpower`).
-3. Commit your Changes (`git commit -m 'Add sloth-themed event templates'`).
-4. Push to the Branch (`git push origin feature/SlothSuperpower`).
-5. Open a Pull Request.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+Contributions are welcome! Please open an issue or pull request.
+Licensed under the [MIT License](LICENSE).

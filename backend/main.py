@@ -1,32 +1,43 @@
+"""
+FastAPI application for EventPilot AI.
+Provides REST endpoints, Sentry agent tracing, Gemma inference, and static asset serving.
+"""
+
 import logging
 import os
+import time
 from contextlib import asynccontextmanager
 from typing import List, Optional
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import FastAPI, HTTPException, Query, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from backend.config import settings
 from backend.models import EventCreateRequest, EventPlan, EventSummary
 from backend.database import (
     init_db, save_event, get_all_events, get_event_by_id, delete_event_by_id
 )
-from backend.ai_service import check_ollama_status, generate_raw_event_plan
+from backend.ai_service import check_gemma_status, generate_gemma_plan
 from backend.planner import (
-    build_prompt_for_event, generate_fallback_plan_data, construct_event_plan, recalculate_event_plan
+    build_gemma_event_prompt, generate_deterministic_demo_plan, construct_event_plan, recalculate_event_plan
+)
+from backend.observability import (
+    init_sentry, AISpanContext, record_diagnostics_event, get_diagnostics_summary
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-logger = logging.getLogger("eventpilot")
+logger = logging.getLogger("eventpilot.api")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
+    # Initialize Sentry
+    sentry_active = init_sentry()
+    # Initialize Database
     init_db()
-    logger.info(f"Initialized database at {settings.DATABASE_PATH}")
+    logger.info(f"EventPilot AI started. Gemma Model: {settings.GEMMA_MODEL} | Sentry Active: {sentry_active}")
     yield
-    # Shutdown logic if needed
+    logger.info("EventPilot AI shutting down.")
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -35,6 +46,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# CORS middleware for local frontend dev & Render hosting
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -45,48 +57,101 @@ app.add_middleware(
 
 @app.get("/api/health")
 async def health_check():
+    """Render-compatible health check endpoint."""
     return {
         "status": "healthy",
         "app_name": settings.APP_NAME,
-        "version": settings.APP_VERSION
+        "version": settings.APP_VERSION,
+        "environment": settings.SENTRY_ENVIRONMENT,
+        "sentry_enabled": bool(settings.SENTRY_DSN)
     }
 
 @app.get("/api/model/status")
 async def model_status():
-    status_info = await check_ollama_status()
-    return status_info
+    """Live connectivity check to configured Gemma endpoint."""
+    return await check_gemma_status()
+
+@app.get("/api/diagnostics")
+async def diagnostics():
+    """In-memory telemetry summary of recent event runs."""
+    return get_diagnostics_summary()
 
 @app.post("/api/events/generate", response_model=EventPlan)
 async def generate_event(req: EventCreateRequest, force_demo: bool = Query(False)):
     """
-    Generate a full structured event plan.
-    Attempts local Ollama generation first. If Ollama is unavailable or fails,
-    returns deterministic fallback data clearly tagged.
+    Generate a full structured event plan using the configured Gemma model.
+    Instrumented with Sentry agent tracing spans.
     """
-    logger.info(f"Received generation request for '{req.name}' ({req.event_type})")
-    
-    if force_demo:
-        fallback_data = generate_fallback_plan_data(req)
-        plan = construct_event_plan(req, fallback_data, ai_generated=False, model_name="Rule-based Deterministic Planner (Demo Mode)")
-        return plan
+    start_time = time.perf_counter()
+    logger.info(f"Plan request received for '{req.name}' ({req.event_type})")
 
-    prompt = build_prompt_for_event(req)
-    success, parsed_data, err_msg = await generate_raw_event_plan(prompt)
+    with AISpanContext(
+        op="event_plan.generate",
+        description=f"Generate plan for {req.name}",
+        data={"event.name": req.name, "event.type": req.event_type, "event.guests": req.guest_count}
+    ):
+        # 1. Validation Span
+        with AISpanContext("event_plan.validate_input", "Validate event specifications"):
+            if req.guest_count <= 0:
+                raise HTTPException(status_code=400, detail="Guest count must be greater than zero")
+            if req.budget < 0:
+                raise HTTPException(status_code=400, detail="Budget cannot be negative")
 
-    if success and parsed_data:
-        logger.info(f"Successfully generated event plan using {settings.OLLAMA_MODEL}")
-        plan = construct_event_plan(req, parsed_data, ai_generated=True, model_name=settings.OLLAMA_MODEL)
-    else:
-        logger.warning(f"Ollama generation fallback triggered: {err_msg}")
-        fallback_data = generate_fallback_plan_data(req)
-        plan = construct_event_plan(
-            req, 
-            fallback_data, 
-            ai_generated=False, 
-            model_name=f"Deterministic Fallback Planner (Ollama was unavailable: {err_msg[:60]}...)"
-        )
-    
-    return plan
+        # 2. Demo mode branch
+        if force_demo or settings.AI_PROVIDER.lower() == "demo":
+            demo_data = generate_deterministic_demo_plan(req)
+            plan = construct_event_plan(
+                req, demo_data, ai_generated=False, model_name="Rule-based Demo Generator"
+            )
+            elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+            record_diagnostics_event(
+                event_name=req.name,
+                outcome="demo_mode",
+                duration_ms=elapsed_ms,
+                model_identifier="demo",
+                provider="demo"
+            )
+            return plan
+
+        # 3. Model Inference Span
+        prompt = build_gemma_event_prompt(req)
+        success, parsed_data, token_usage, err_msg = await generate_gemma_plan(prompt)
+        elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+
+        if success and parsed_data:
+            with AISpanContext("event_plan.parse_output", "Parse and validate Gemma structured output"):
+                plan = construct_event_plan(
+                    req, parsed_data, ai_generated=True, model_name=settings.GEMMA_MODEL
+                )
+            
+            record_diagnostics_event(
+                event_name=req.name,
+                outcome="success",
+                duration_ms=elapsed_ms,
+                model_identifier=settings.GEMMA_MODEL,
+                provider=settings.AI_PROVIDER,
+                token_usage=token_usage
+            )
+            return plan
+        else:
+            # Fallback when inference fails or is offline
+            logger.warning(f"Gemma model call failed or timed out: {err_msg}")
+            fallback_data = generate_deterministic_demo_plan(req)
+            plan = construct_event_plan(
+                req,
+                fallback_data,
+                ai_generated=False,
+                model_name=f"Deterministic Fallback (Gemma error: {err_msg[:60]}...)"
+            )
+            record_diagnostics_event(
+                event_name=req.name,
+                outcome="fallback",
+                duration_ms=elapsed_ms,
+                model_identifier=settings.GEMMA_MODEL,
+                provider=settings.AI_PROVIDER,
+                error=err_msg
+            )
+            return plan
 
 @app.post("/api/events", response_model=EventPlan, status_code=status.HTTP_201_CREATED)
 async def create_or_save_event(plan: EventPlan):

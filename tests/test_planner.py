@@ -2,10 +2,10 @@ import pytest
 from datetime import date, timedelta
 from backend.models import EventCreateRequest, EventPlan, BudgetItem, TaskItem
 from backend.planner import (
-    construct_event_plan, generate_fallback_plan_data, recalculate_event_plan
+    construct_event_plan, generate_deterministic_demo_plan, recalculate_event_plan
 )
 
-def test_fallback_plan_generation():
+def test_demo_plan_generation():
     req = EventCreateRequest(
         name="Aarav's 25th Birthday",
         event_type="birthday",
@@ -16,10 +16,10 @@ def test_fallback_plan_generation():
         currency="INR",
         food_preference="vegetarian"
     )
-    fallback = generate_fallback_plan_data(req)
-    assert "overview" in fallback
-    assert len(fallback["budget_breakdown"]) >= 5
-    assert len(fallback["timeline_tasks"]) >= 5
+    demo = generate_deterministic_demo_plan(req)
+    assert "overview" in demo
+    assert len(demo["budget_breakdown"]) >= 5
+    assert len(demo["timeline_tasks"]) >= 5
 
 def test_deterministic_budget_calculation():
     req = EventCreateRequest(
@@ -31,10 +31,10 @@ def test_deterministic_budget_calculation():
         budget=50000.0,
         currency="INR"
     )
-    raw_data = generate_fallback_plan_data(req)
-    plan = construct_event_plan(req, raw_data, ai_generated=False, model_name="test-model")
+    raw_data = generate_deterministic_demo_plan(req)
+    plan = construct_event_plan(req, raw_data, ai_generated=False, model_name="gemma2:2b")
     
-    # Total budget items must equal or be within 0.01 of planned budget
+    # Total budget items must equal or be within 0.05 of planned budget
     total_est = sum(item.estimated_cost for item in plan.budget_items)
     assert abs(total_est - 50000.0) < 0.05
     assert plan.total_estimated_budget == total_est

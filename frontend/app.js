@@ -123,28 +123,30 @@ class EventPilotApp {
       const dashStatus = document.getElementById('dashAiStatus');
       const dashModel = document.getElementById('dashAiModel');
 
+      const configuredModel = data.model_configured || data.configured_model || 'gemma2:2b';
+
       if (data.available && data.model_available) {
         dot.className = 'status-dot online';
-        statusText.textContent = 'Ollama Online';
-        modelNameText.textContent = data.configured_model;
-        if (badge) badge.textContent = `Local Ollama (${data.configured_model}) — Ready`;
-        if (dashStatus) dashStatus.textContent = 'Model loaded & ready';
-        if (dashModel) dashModel.textContent = data.configured_model;
-        if (notify) this.showToast('Ollama connected and ready!', 'success');
+        statusText.textContent = data.provider === 'demo' ? 'Demo Mode Active' : `${configuredModel} Ready`;
+        modelNameText.textContent = configuredModel;
+        if (badge) badge.textContent = `${data.provider.toUpperCase()}: ${configuredModel} (Online)`;
+        if (dashStatus) dashStatus.textContent = 'Gemma engine connected';
+        if (dashModel) dashModel.textContent = configuredModel;
+        if (notify) this.showToast(`Inference ready: ${configuredModel}`, 'success');
       } else if (data.available) {
         dot.className = 'status-dot offline';
         statusText.textContent = 'Model Missing';
-        modelNameText.textContent = `Needs 'ollama pull ${data.configured_model}'`;
-        if (badge) badge.textContent = `Ollama running, but pull needed`;
+        modelNameText.textContent = `Pull '${configuredModel}'`;
+        if (badge) badge.textContent = `${configuredModel} needs setup`;
         if (dashStatus) dashStatus.textContent = 'Model pull needed';
-        if (notify) this.showToast(`Ollama reachable, but ${data.configured_model} is missing`, 'error');
+        if (notify) this.showToast(`Endpoint reachable, but ${configuredModel} missing`, 'error');
       } else {
         dot.className = 'status-dot offline';
-        statusText.textContent = 'Ollama Offline';
-        modelNameText.textContent = 'Fallback mode active';
+        statusText.textContent = 'AI Offline';
+        modelNameText.textContent = 'Fallback/Demo active';
         if (badge) badge.textContent = `Offline (Instant fallback enabled)`;
-        if (dashStatus) dashStatus.textContent = 'Offline (Fallback active)';
-        if (notify) this.showToast('Ollama is not running. Using fallback engine.', 'error');
+        if (dashStatus) dashStatus.textContent = 'Fallback active';
+        if (notify) this.showToast('Gemma endpoint offline. Using fallback engine.', 'error');
       }
     } catch (err) {
       console.warn('Could not query model status:', err);
@@ -187,10 +189,11 @@ class EventPilotApp {
 
     if (forceDemo) {
       loadTitle.textContent = "Crafting Plan in Demo Mode...";
-      loadSub.textContent = "Instant deterministic generation without querying local AI.";
+      loadSub.textContent = "Instant deterministic generation without querying external AI.";
     } else {
+      const activeModel = this.modelStatus.model_configured || this.modelStatus.configured_model || 'gemma2:2b';
       loadTitle.textContent = "Channeling Your Inner Sloth...";
-      loadSub.textContent = `Querying local Ollama model (${this.modelStatus.configured_model || 'qwen2.5-coder:1.5b'})...`;
+      loadSub.textContent = `Querying instruction-tuned model (${activeModel})...`;
     }
 
     const payload = {
