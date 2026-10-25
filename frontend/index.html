@@ -18,6 +18,11 @@
 </head>
 <body>
 
+<!-- Accessible Skip Link for Screen Readers and Keyboard Navigation -->
+<a href="#mainContent" class="skip-to-content" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; z-index:999; background:var(--text-accent); color:#171411; padding:10px 18px; font-weight:600; text-decoration:none; border-radius:4px;" onfocus="this.style.position='fixed'; this.style.left='16px'; this.style.top='16px'; this.style.width='auto'; this.style.height='auto';" onblur="this.style.position='absolute'; this.style.left='-9999px';">
+  Skip to main content
+</a>
+
 <div class="app-layout">
   <!-- Minimalist Editorial Navigation Sidebar -->
   <aside class="app-sidebar" id="appSidebar">
@@ -66,7 +71,7 @@
   </aside>
 
   <!-- Main Content Stage -->
-  <main class="app-main">
+  <main class="app-main" id="mainContent">
     <header class="topbar">
       <div class="topbar-meta">
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
@@ -600,8 +605,8 @@
   </div>
 </div>
 
-<!-- Toast Container -->
-<div class="toast-container" id="toastContainer"></div>
+<!-- Toast Container with Accessible ARIA Live Region -->
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Application Logic -->
 <script src="/static/app.js"></script>

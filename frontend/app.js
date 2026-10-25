@@ -106,9 +106,14 @@ class EventPilotApp {
     if (window.lucide) window.lucide.createIcons();
   }
 
+  getApiBaseUrl() {
+    // Configurable API base origin with graceful fallback for separate frontend/backend deployments
+    return (window.EVENTPILOT_API_BASE || '').replace(/\/$/, '');
+  }
+
   async checkModelStatus(notify = false) {
     try {
-      const res = await fetch('/api/model/status');
+      const res = await fetch(`${this.getApiBaseUrl()}/api/model/status`);
       const data = await res.json();
       this.modelStatus = data;
 
@@ -209,7 +214,7 @@ class EventPilotApp {
     };
 
     try {
-      const url = `/api/events/generate?force_demo=${forceDemo}`;
+      const url = `${this.getApiBaseUrl()}/api/events/generate?force_demo=${forceDemo}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -687,7 +692,7 @@ class EventPilotApp {
     btn.disabled = true;
 
     try {
-      const res = await fetch('/api/events', {
+      const res = await fetch(`${this.getApiBaseUrl()}/api/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(this.currentPlan)
@@ -707,7 +712,7 @@ class EventPilotApp {
 
   async loadSavedEvents() {
     try {
-      const res = await fetch('/api/events');
+      const res = await fetch(`${this.getApiBaseUrl()}/api/events`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       this.savedEvents = await res.json();
       
@@ -820,7 +825,7 @@ class EventPilotApp {
 
   async openSavedEvent(eventId) {
     try {
-      const res = await fetch(`/api/events/${eventId}`);
+      const res = await fetch(`${this.getApiBaseUrl()}/api/events/${eventId}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const plan = await res.json();
       this.currentPlan = plan;
@@ -842,7 +847,7 @@ class EventPilotApp {
     if (!confirm('Are you sure you want to permanently delete this event?')) return;
 
     try {
-      const res = await fetch(`/api/events/${eventId}`, { method: 'DELETE' });
+      const res = await fetch(`${this.getApiBaseUrl()}/api/events/${eventId}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       this.showToast('Event deleted', 'success');
       
