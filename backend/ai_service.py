@@ -16,9 +16,9 @@ from backend.observability import AISpanContext
 logger = logging.getLogger("eventpilot.ai_service")
 
 async def check_gemma_status() -> Dict[str, Any]:
-    """Check connectivity to the configured Gemma inference endpoint."""
+    """Check connectivity to the configured Gemma / local open-weight inference endpoint."""
     provider = settings.AI_PROVIDER.lower()
-    model = settings.GEMMA_MODEL
+    model = settings.MODEL_NAME or settings.GEMMA_MODEL
     base_url = settings.INFERENCE_BASE_URL.rstrip("/")
 
     if provider == "demo":
@@ -124,13 +124,13 @@ async def check_gemma_status() -> Dict[str, Any]:
 
 async def generate_gemma_plan(prompt: str) -> Tuple[bool, Dict[str, Any], Optional[Dict[str, Any]], str]:
     """
-    Invokes the configured Gemma model.
+    Invokes the configured Gemma / local model.
     Returns:
       (success: bool, parsed_data: dict, token_usage: Optional[dict], error_message: str)
     """
     provider = settings.AI_PROVIDER.lower()
     base_url = settings.INFERENCE_BASE_URL.rstrip("/")
-    model = settings.GEMMA_MODEL
+    model = settings.MODEL_NAME or settings.GEMMA_MODEL
     timeout = settings.INFERENCE_TIMEOUT_SECONDS
 
     with AISpanContext(

@@ -79,10 +79,10 @@ class EventPilotApp {
 
     // Update Topbar heading
     const headings = {
-      'tab-dashboard': 'Dashboard Overview',
-      'tab-create': 'Create New Event Plan',
-      'tab-saved': 'Saved Event Plans',
-      'tab-plan-view': 'Active Event Plan'
+      'tab-dashboard': 'Event Planning Studio / Workspace',
+      'tab-create': 'Event Planning Studio / New Occasion',
+      'tab-saved': 'Event Planning Studio / Saved Plans',
+      'tab-plan-view': 'Event Planning Studio / Active Occasion'
     };
     const headingEl = document.getElementById('topbarHeading');
     if (headingEl) {
@@ -96,15 +96,11 @@ class EventPilotApp {
     document.querySelectorAll('.subtab-content').forEach(el => {
       el.style.display = (el.id === subTabId) ? 'block' : 'none';
     });
-    document.querySelectorAll('.subnav-btn').forEach(btn => {
+    document.querySelectorAll('.subnav-btn-editorial').forEach(btn => {
       if (btn.getAttribute('data-subtab') === subTabId) {
         btn.classList.add('active');
-        btn.style.backgroundColor = 'var(--forest-800)';
-        btn.style.color = '#fff';
       } else {
         btn.classList.remove('active');
-        btn.style.backgroundColor = 'transparent';
-        btn.style.color = 'var(--text-main)';
       }
     });
     if (window.lucide) window.lucide.createIcons();
@@ -221,7 +217,18 @@ class EventPilotApp {
       });
 
       if (!response.ok) {
-        throw new Error(`Server returned HTTP ${response.status}`);
+        let errDetail = `Server returned HTTP ${response.status}`;
+        try {
+          const errData = await response.json();
+          if (errData && errData.detail) {
+            if (typeof errData.detail === 'object' && errData.detail.message) {
+              errDetail = `${errData.detail.message} ${errData.detail.suggestion || ''}`;
+            } else if (typeof errData.detail === 'string') {
+              errDetail = errData.detail;
+            }
+          }
+        } catch (_) {}
+        throw new Error(errDetail);
       }
 
       const plan = await response.json();
@@ -308,7 +315,7 @@ class EventPilotApp {
     if (remaining < 0) {
       remainingEl.style.color = 'var(--danger)';
     } else {
-      remainingEl.style.color = 'var(--forest-800)';
+      remainingEl.style.color = 'var(--text-accent)';
     }
 
     document.getElementById('bgUtilizationPct').textContent = `${utilPct}%`;
@@ -317,11 +324,11 @@ class EventPilotApp {
     const fill = document.getElementById('bgProgressFill');
     fill.style.width = `${Math.min(utilPct, 100)}%`;
     if (utilPct > 100) {
-      fill.className = 'progress-bar-fill danger';
+      fill.className = 'editorial-progress-fill danger';
     } else if (utilPct > 85) {
-      fill.className = 'progress-bar-fill warning';
+      fill.className = 'editorial-progress-fill warning';
     } else {
-      fill.className = 'progress-bar-fill';
+      fill.className = 'editorial-progress-fill';
     }
 
     // Over budget banner
@@ -392,18 +399,18 @@ class EventPilotApp {
     document.getElementById('bgPlannedSpend').textContent = `${curr} ${totalEstimated.toLocaleString()}`;
     const remainingEl = document.getElementById('bgRemainingBalance');
     remainingEl.textContent = `${curr} ${plan.remaining_balance.toLocaleString()}`;
-    remainingEl.style.color = plan.remaining_balance < 0 ? 'var(--danger)' : 'var(--forest-800)';
+    remainingEl.style.color = plan.remaining_balance < 0 ? 'var(--danger)' : 'var(--text-accent)';
 
     document.getElementById('bgUtilizationPct').textContent = `${utilPct}%`;
 
     const fill = document.getElementById('bgProgressFill');
     fill.style.width = `${Math.min(utilPct, 100)}%`;
     if (utilPct > 100) {
-      fill.className = 'progress-bar-fill danger';
+      fill.className = 'editorial-progress-fill danger';
     } else if (utilPct > 85) {
-      fill.className = 'progress-bar-fill warning';
+      fill.className = 'editorial-progress-fill warning';
     } else {
-      fill.className = 'progress-bar-fill';
+      fill.className = 'editorial-progress-fill';
     }
 
     const warningBanner = document.getElementById('bgOverBudgetWarning');
@@ -456,29 +463,29 @@ class EventPilotApp {
       const isOverdue = isPast && !t.completed;
 
       const itemEl = document.createElement('div');
-      itemEl.className = `timeline-item ${t.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`;
+      itemEl.className = `timeline-editorial-card ${t.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`;
       itemEl.innerHTML = `
         <input 
           type="checkbox" 
-          class="task-checkbox" 
+          class="editorial-checkbox task-checkbox" 
           data-index="${idx}" 
           ${t.completed ? 'checked' : ''}
         >
-        <div class="task-content">
-          <div class="task-title">
+        <div style="flex:1;">
+          <div class="task-headline">
             <span>${this.escapeHtml(t.title)}</span>
-            <span class="badge-priority ${t.priority || 'medium'}">${t.priority || 'medium'}</span>
-            ${isOverdue ? '<span class="badge-overdue">OVERDUE</span>' : ''}
+            <span class="task-priority-tag ${t.priority || 'medium'}">${t.priority || 'medium'}</span>
+            ${isOverdue ? '<span style="font-size:0.65rem; color:var(--danger); font-weight:700; letter-spacing:0.1em;">OVERDUE</span>' : ''}
           </div>
-          <div class="task-desc">${this.escapeHtml(t.description)}</div>
-          <div class="task-meta">
-            <span><i data-lucide="calendar" style="width:12px;height:12px;"></i> Due: <strong>${t.due_date}</strong></span>
-            <span>(${t.days_before_event} days before event)</span>
-            <span style="color:var(--sage-500); font-weight:600;">Phase: ${this.escapeHtml(t.phase || 'Preparation')}</span>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">${this.escapeHtml(t.description)}</div>
+          <div style="display:flex; gap:14px; margin-top:8px; font-size:0.75rem; color:var(--text-muted);">
+            <span><i data-lucide="calendar" style="width:11px;height:11px;"></i> Due: <strong>${t.due_date}</strong></span>
+            <span>(${t.days_before_event} days prior)</span>
+            <span style="color:var(--text-accent-muted);">Phase: ${this.escapeHtml(t.phase || 'Preparation')}</span>
           </div>
         </div>
         <button class="btn btn-outline btn-sm no-print" onclick="app.removeTask(${idx})" title="Delete task">
-          <i data-lucide="trash-2" style="width:13px;height:13px;color:var(--text-light);"></i>
+          <i data-lucide="trash-2" style="width:12px;height:12px;color:var(--text-muted);"></i>
         </button>
       `;
       container.appendChild(itemEl);
@@ -593,27 +600,27 @@ class EventPilotApp {
 
     (plan.shopping_list || []).forEach((item, idx) => {
       const card = document.createElement('div');
-      card.style.background = '#faf9f5';
+      card.style.backgroundColor = 'var(--bg-card)';
       card.style.border = '1px solid var(--border-subtle)';
-      card.style.borderRadius = 'var(--radius-sm)';
-      card.style.padding = '10px 14px';
+      card.style.borderRadius = 'var(--radius-xs)';
+      card.style.padding = '12px 16px';
       card.style.display = 'flex';
       card.style.alignItems = 'center';
-      card.style.gap = '10px';
+      card.style.gap = '12px';
 
       card.innerHTML = `
         <input 
           type="checkbox" 
-          class="task-checkbox" 
+          class="editorial-checkbox" 
           ${item.purchased ? 'checked' : ''} 
           onchange="app.currentPlan.shopping_list[${idx}].purchased = this.checked"
         >
         <div style="flex:1;">
-          <div style="font-size: 0.88rem; font-weight: 600; color: var(--forest-900); ${item.purchased ? 'text-decoration: line-through;' : ''}">
+          <div style="font-size: 0.88rem; font-weight: 500; color: var(--text-main); ${item.purchased ? 'text-decoration: line-through; opacity: 0.5;' : ''}">
             ${this.escapeHtml(item.item)}
           </div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">
-            Qty: <strong>${this.escapeHtml(item.quantity)}</strong> · ${this.escapeHtml(item.category)}
+          <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+            Qty: <strong style="color:var(--text-accent);">${this.escapeHtml(item.quantity)}</strong> · ${this.escapeHtml(item.category)}
           </div>
         </div>
       `;
@@ -632,16 +639,16 @@ class EventPilotApp {
     (plan.activities_schedule || []).forEach(act => {
       const item = document.createElement('div');
       item.style.display = 'flex';
-      item.style.gap = '16px';
+      item.style.gap = '20px';
       item.style.alignItems = 'flex-start';
 
       item.innerHTML = `
-        <div style="min-width: 90px; font-weight: 700; color: var(--forest-800); font-size: 0.9rem; padding: 4px 8px; background: var(--forest-100); border-radius: 4px; text-align: center;">
+        <div style="min-width: 90px; font-family: var(--font-serif); font-weight: 600; color: var(--text-accent); font-size: 1.05rem; padding: 4px 10px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xs); text-align: center;">
           ${this.escapeHtml(act.time || 'TBD')}
         </div>
-        <div style="flex:1; border-left: 2px solid var(--sage-400); padding-left: 14px; padding-bottom: 12px;">
-          <div style="font-weight: 600; color: var(--forest-900); font-size: 0.95rem;">${this.escapeHtml(act.activity)}</div>
-          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">${this.escapeHtml(act.notes || '')}</div>
+        <div style="flex:1; border-left: 1px solid var(--border-medium); padding-left: 18px; padding-bottom: 16px;">
+          <div style="font-family: var(--font-serif); font-size: 1.18rem; color: var(--text-main); line-height: 1.2;">${this.escapeHtml(act.activity)}</div>
+          <div style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">${this.escapeHtml(act.notes || '')}</div>
         </div>
       `;
       container.appendChild(item);
@@ -779,40 +786,32 @@ class EventPilotApp {
 
   createEventCardElement(evt) {
     const card = document.createElement('div');
-    card.className = 'event-card';
+    card.className = 'event-editorial-card';
 
     card.innerHTML = `
-      <div class="event-card-header">
-        <span class="event-badge">${this.escapeHtml(evt.event_type)}</span>
+      <div class="card-top-row">
+        <span class="event-type-pill">${this.escapeHtml(evt.event_type)}</span>
         <button class="btn btn-outline btn-sm no-print" onclick="app.deleteEvent('${evt.id}', event)" title="Delete event">
-          <i data-lucide="trash-2" style="width:14px;height:14px;color:var(--danger);"></i>
+          <i data-lucide="trash-2" style="width:13px;height:13px;color:var(--danger);"></i>
         </button>
       </div>
 
       <div class="event-card-title">${this.escapeHtml(evt.name)}</div>
 
-      <div class="event-meta">
-        <div class="event-meta-item">
-          <i data-lucide="calendar" style="width:13px;height:13px;"></i>
-          <span>${evt.event_date}</span>
-        </div>
-        <div class="event-meta-item">
-          <i data-lucide="users" style="width:13px;height:13px;"></i>
-          <span>${evt.guest_count} guests</span>
-        </div>
-        <div class="event-meta-item">
-          <i data-lucide="wallet" style="width:13px;height:13px;"></i>
-          <span>${evt.currency} ${Number(evt.total_budget).toLocaleString()}</span>
-        </div>
+      <div class="event-meta-editorial">
+        <span><i data-lucide="calendar" style="width:12px;height:12px;"></i> ${evt.event_date}</span>
+        <span><i data-lucide="users" style="width:12px;height:12px;"></i> ${evt.guest_count} guests</span>
+        <span><i data-lucide="wallet" style="width:12px;height:12px;"></i> ${evt.currency} ${Number(evt.total_budget).toLocaleString()}</span>
       </div>
 
-      <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px;">
-        Tasks progress: <strong>${evt.completed_task_count}/${evt.task_count} completed</strong>
+      <div class="event-progress-track">
+        <span>Milestones</span>
+        <strong>${evt.completed_task_count}/${evt.task_count} completed</strong>
       </div>
 
       <div style="margin-top: auto; display: flex; gap: 8px;">
-        <button class="btn btn-primary btn-sm" style="flex:1;" onclick="app.openSavedEvent('${evt.id}')">
-          <i data-lucide="folder-open"></i> Open Plan
+        <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="app.openSavedEvent('${evt.id}')">
+          Open Occasion ↗
         </button>
       </div>
     `;

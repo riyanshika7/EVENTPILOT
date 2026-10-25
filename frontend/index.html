@@ -8,60 +8,47 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   
-  <!-- Styles -->
+  <!-- Dark Editorial Stylesheet -->
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 
 <div class="app-layout">
-  <!-- Sidebar Navigation -->
+  <!-- Minimalist Editorial Navigation Sidebar -->
   <aside class="app-sidebar" id="appSidebar">
     <div class="brand-wrapper">
-      <div class="brand-icon-box">
-        <!-- Sloth Brand SVG -->
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-          <line x1="9" y1="9" x2="9.01" y2="9"/>
-          <line x1="15" y1="9" x2="15.01" y2="9"/>
-          <path d="M7 10c.5-1.5 2-2 2-2"/>
-          <path d="M17 10c-.5-1.5-2-2-2-2"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h1>EventPilot AI</h1>
-        <p>Hacktoberfest Edition</p>
-      </div>
+      <div class="brand-meta">Event Planning Studio</div>
+      <div class="brand-title">EventPilot <em>AI</em></div>
     </div>
 
     <ul class="nav-menu">
       <li>
         <a class="nav-item active" data-tab="tab-dashboard">
-          <i data-lucide="layout-dashboard"></i>
-          <span>Dashboard</span>
+          <i data-lucide="compass" style="width: 17px; height: 17px;"></i>
+          <span>Workspace</span>
         </a>
       </li>
       <li>
         <a class="nav-item" data-tab="tab-create">
-          <i data-lucide="sparkles"></i>
-          <span>Create New Event</span>
+          <i data-lucide="sparkles" style="width: 17px; height: 17px;"></i>
+          <span>New Occasion</span>
         </a>
       </li>
       <li>
         <a class="nav-item" data-tab="tab-saved">
-          <i data-lucide="bookmark"></i>
-          <span>Saved Events</span>
+          <i data-lucide="archive" style="width: 17px; height: 17px;"></i>
+          <span>Saved Plans</span>
           <span class="nav-badge" id="savedCountBadge">0</span>
         </a>
       </li>
       <li>
         <a class="nav-item" data-tab="tab-plan-view" id="navActivePlan" style="display:none;">
-          <i data-lucide="calendar"></i>
+          <i data-lucide="calendar" style="width: 17px; height: 17px;"></i>
           <span>Active Plan</span>
         </a>
       </li>
@@ -78,411 +65,399 @@
     </div>
   </aside>
 
-  <!-- Main Content Wrapper -->
+  <!-- Main Content Stage -->
   <main class="app-main">
     <header class="topbar">
-      <div class="topbar-title">
+      <div class="topbar-meta">
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
           <i data-lucide="menu"></i>
         </button>
-        <h2 id="topbarHeading">Dashboard</h2>
+        <span class="topbar-label" id="topbarHeading">Event Planning Studio / Your Private Workspace</span>
       </div>
 
       <div style="display: flex; gap: 12px; align-items: center;">
         <button class="btn btn-outline btn-sm" id="btnRefreshModel" title="Check AI Connection">
-          <i data-lucide="refresh-cw"></i> AI Status
+          <i data-lucide="activity" style="width: 14px; height: 14px;"></i> Status
         </button>
         <button class="btn btn-primary btn-sm" onclick="app.switchTab('tab-create')">
-          <i data-lucide="plus"></i> New Event
+          <i data-lucide="plus" style="width: 14px; height: 14px;"></i> Plan an Event ↗
         </button>
       </div>
     </header>
 
     <div class="content-container">
 
-      <!-- ================= 1. DASHBOARD VIEW ================= -->
+      <!-- ================= 1. EDITORIAL DASHBOARD ================= -->
       <section id="tab-dashboard" class="tab-content active">
-        <!-- Sloth Mascot Hero Banner -->
-        <div class="sloth-hero-card">
-          <div class="hero-text">
-            <span class="hero-badge">
-              <i data-lucide="coffee" style="width: 14px; height: 14px;"></i> Channel Your Inner Sloth
-            </span>
-            <h2>Plan Less. Celebrate More.</h2>
-            <p>
-              Why spend days stressing over spreadsheets and endless checklists? Let open-weight GenAI orchestrate your venue, schedules, budgeting, and vendors while you relax.
-            </p>
-            <div style="display:flex; gap:12px; flex-wrap: wrap;">
-              <button class="btn btn-primary" onclick="app.switchTab('tab-create')">
-                <i data-lucide="sparkles"></i> Plan an Event with AI
-              </button>
-              <button class="btn btn-secondary" onclick="app.fillDemoForm()">
-                <i data-lucide="zap"></i> Quick Birthday Demo
-              </button>
-            </div>
-          </div>
+        <!-- Asymmetric Hero + Studio Cards Grid -->
+        <div class="dashboard-editorial-grid">
           
-          <!-- Sloth Mascot Illustration -->
-          <div class="hero-illustration">
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="45" fill="#e8efe9" />
-              <!-- Branch -->
-              <path d="M10 65 Q 50 55 90 65" stroke="#8ba88f" stroke-width="6" stroke-linecap="round" />
-              <!-- Sloth Body -->
-              <path d="M 35 45 C 35 32, 65 32, 65 45 C 65 60, 35 60, 35 45 Z" fill="#b08968" />
-              <!-- Face Mask -->
-              <path d="M 40 43 C 40 37, 60 37, 60 43 C 60 52, 40 52, 40 43 Z" fill="#ede0d4" />
-              <!-- Eye Patches -->
-              <ellipse cx="44" cy="42" rx="3.5" ry="5" fill="#7f5539" transform="rotate(-15 44 42)" />
-              <ellipse cx="56" cy="42" rx="3.5" ry="5" fill="#7f5539" transform="rotate(15 56 42)" />
-              <!-- Eyes sleeping -->
-              <path d="M 42 42 Q 44 44 46 42" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
-              <path d="M 54 42 Q 56 44 58 42" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
-              <!-- Smile -->
-              <path d="M 47 48 Q 50 51 53 48" stroke="#7f5539" stroke-width="1.5" stroke-linecap="round" fill="none" />
-              <!-- Sloth Paws hanging -->
-              <path d="M 38 52 Q 38 65 40 65" stroke="#b08968" stroke-width="4" stroke-linecap="round" />
-              <path d="M 62 52 Q 62 65 60 65" stroke="#b08968" stroke-width="4" stroke-linecap="round" />
-              <!-- Party Hat -->
-              <path d="M 50 25 L 43 35 L 57 35 Z" fill="#e06d53" />
-              <circle cx="50" cy="24" r="2.5" fill="#ffd166" />
-            </svg>
+          <!-- Hero Editorial Panel -->
+          <div class="editorial-hero-panel">
+            <div>
+              <span class="editorial-kicker">Event Planning Studio / Private Workspace</span>
+              <h1 class="hero-headline">
+                Make room<br>
+                for the<br>
+                <em>celebration.</em>
+              </h1>
+              <p class="hero-subtext">
+                Thoughtful plans. Considered budgets. Less work before the big day. Let open-weight intelligence take care of the logistics while you focus on celebrating.
+              </p>
+              <div class="hero-actions">
+                <button class="btn btn-primary" onclick="app.switchTab('tab-create')">
+                  Plan an event ↗
+                </button>
+                <button class="btn btn-secondary" onclick="app.switchTab('tab-saved')">
+                  Explore your plans
+                </button>
+                <button class="btn btn-outline" onclick="app.fillDemoForm()">
+                  Sample details
+                </button>
+              </div>
+            </div>
+
+            <!-- Restrained Real Metadata Stats -->
+            <div class="hero-stats-row">
+              <div class="hero-stat-block">
+                <span class="hero-stat-label">Plans In Progress</span>
+                <span class="hero-stat-val" id="dashTotalEvents">0</span>
+              </div>
+              <div class="hero-stat-block">
+                <span class="hero-stat-label">Budgets Under Control</span>
+                <span class="hero-stat-val" id="dashTotalBudget">₹0</span>
+              </div>
+              <div class="hero-stat-block">
+                <span class="hero-stat-label">Pending Milestones</span>
+                <span class="hero-stat-val" id="dashPendingTasks">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aside Studio Panels -->
+          <div class="editorial-aside-column">
+            
+            <!-- Panel A: Create an Event Distinctive Card -->
+            <div class="studio-create-card">
+              <span class="editorial-kicker">New Occasion</span>
+              <h3>A new occasion begins here.</h3>
+              <p>Enter your guest count, target budget, and desired atmosphere once. Our instruction-tuned engine organizes the rest.</p>
+              <button class="btn btn-secondary" onclick="app.switchTab('tab-create')">
+                Begin Planning ↗
+              </button>
+            </div>
+
+            <!-- Panel E: The Art of Doing Less (Sloth Philosophy) -->
+            <div class="sloth-philosophy-card">
+              <span class="editorial-kicker">Planning Philosophy</span>
+              <div class="quote">“Let the little details take care of themselves.”</div>
+              <div class="byline">The Art of Doing Less — Channel Your Inner Sloth</div>
+            </div>
+
+            <!-- AI Engine Readiness Card -->
+            <div class="card-panel" style="padding: 22px 28px;">
+              <span class="editorial-kicker">Engine Connectivity</span>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 4px;">
+                <span style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--text-main);" id="dashAiModel">Gemma Engine</span>
+                <span style="font-size: 0.76rem; color: var(--text-accent-muted);" id="dashAiStatus">Connected</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <!-- Dashboard Key Metrics -->
-        <div class="dashboard-metrics">
-          <div class="metric-card">
-            <div class="metric-icon">
-              <i data-lucide="calendar"></i>
-            </div>
+        <!-- Lower Section: Saved Events Gallery -->
+        <div class="dashboard-lower-section">
+          <div class="section-header-editorial">
             <div>
-              <div class="metric-val" id="dashTotalEvents">0</div>
-              <div class="metric-label">Saved Events</div>
+              <span class="editorial-kicker">Portfolio</span>
+              <h3>Your Celebrations</h3>
             </div>
+            <button class="btn btn-outline btn-sm" onclick="app.switchTab('tab-saved')">View All Plans</button>
           </div>
-          <div class="metric-card">
-            <div class="metric-icon" style="background: var(--coral-100); color: var(--coral-500);">
-              <i data-lucide="wallet"></i>
-            </div>
-            <div>
-              <div class="metric-val" id="dashTotalBudget">₹0</div>
-              <div class="metric-label">Total Planned Budgets</div>
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-icon" style="background: #fef3c7; color: #d97706;">
-              <i data-lucide="check-square"></i>
-            </div>
-            <div>
-              <div class="metric-val" id="dashPendingTasks">0</div>
-              <div class="metric-label">Pending Checklist Tasks</div>
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-icon" style="background: #e0f2fe; color: #0284c7;">
-              <i data-lucide="cpu"></i>
-            </div>
-            <div>
-              <div class="metric-val" style="font-size: 1.05rem;" id="dashAiModel">Local Ollama</div>
-              <div class="metric-label" id="dashAiStatus">Checking readiness</div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Recent Events Section -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 style="font-size: 1.15rem; color: var(--forest-900);">Recent Event Plans</h3>
-          <button class="btn btn-outline btn-sm" onclick="app.switchTab('tab-saved')">View All</button>
-        </div>
-
-        <div id="dashboardEventsList" class="events-grid">
-          <!-- Populated by app.js -->
-        </div>
-
-        <!-- Empty State for Dashboard -->
-        <div id="dashboardEmptyState" class="card" style="text-align: center; padding: 48px 24px; display: none;">
-          <div style="width: 64px; height: 64px; margin: 0 auto 16px auto; background: var(--bg-surface-soft); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--forest-600);">
-            <i data-lucide="calendar-plus" style="width: 32px; height: 32px;"></i>
+          <div id="dashboardEventsList" class="events-editorial-grid">
+            <!-- Injected via app.js -->
           </div>
-          <h4 style="font-size: 1.15rem; color: var(--forest-900); margin-bottom: 6px;">No Events Planned Yet</h4>
-          <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 440px; margin: 0 auto 20px auto;">
-            Take a breath, channel your inner sloth, and create your first AI-assisted event plan in under 60 seconds.
-          </p>
-          <button class="btn btn-primary" onclick="app.switchTab('tab-create')">
-            <i data-lucide="plus"></i> Plan Your First Event
-          </button>
+
+          <!-- Empty State -->
+          <div id="dashboardEmptyState" class="card-panel" style="text-align: center; padding: 56px 24px; display: none;">
+            <div style="font-family: var(--font-serif); font-size: 1.8rem; font-weight: 500; color: var(--text-main); margin-bottom: 8px;">
+              No Occasions Planned Yet
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 440px; margin: 0 auto 24px auto;">
+              Take a breath and channel your inner sloth. Design your first curated event plan in under 60 seconds.
+            </p>
+            <button class="btn btn-primary" onclick="app.switchTab('tab-create')">
+              Plan Your First Occasion ↗
+            </button>
+          </div>
         </div>
       </section>
 
-      <!-- ================= 2. CREATE EVENT VIEW ================= -->
+      <!-- ================= 2. EVENT CREATION VIEW ================= -->
       <section id="tab-create" class="tab-content">
-        <div class="card" style="margin-bottom: 24px;">
-          <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px;">
+        <div class="card-panel">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px; margin-bottom: 32px;">
             <div>
-              <h3 style="font-size: 1.35rem; color: var(--forest-900); font-family: var(--font-serif);">Create New Event Plan</h3>
-              <p style="color: var(--text-muted); font-size: 0.88rem;">Fill in basic details once. Our local AI will structure the rest.</p>
+              <span class="editorial-kicker">Studio Commission</span>
+              <h2 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 500; color: var(--text-main);">
+                Design a New Occasion
+              </h2>
+              <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">
+                Specify your gathering once. EventPilot structures themes, schedules, and budgets deterministically.
+              </p>
             </div>
             <button class="btn btn-secondary btn-sm" type="button" onclick="app.fillDemoForm()">
-              <i data-lucide="wand-2"></i> Fill Sample Details
+              <i data-lucide="wand-2" style="width: 14px; height: 14px;"></i> Populate Sample Details
             </button>
           </div>
 
           <form id="createEventForm">
-            <div class="form-grid">
-              <!-- Event Name -->
-              <div class="form-group full-width">
-                <label class="form-label" for="eventName">Event Name *</label>
-                <input class="form-control" type="text" id="eventName" placeholder="e.g. Diya's 21st Birthday, Tech Fest 2026, Ankit & Ritu Reception" required>
-              </div>
-
-              <!-- Event Type -->
-              <div class="form-group">
-                <label class="form-label" for="eventType">Event Type *</label>
-                <select class="form-control" id="eventType" required>
-                  <option value="birthday">Birthday Party</option>
-                  <option value="wedding">Wedding / Reception</option>
-                  <option value="college">College Fest / Hackathon</option>
-                  <option value="community">Community Gathering / Meetup</option>
-                  <option value="custom">Custom Celebration</option>
-                </select>
-              </div>
-
-              <!-- Event Date -->
-              <div class="form-group">
-                <label class="form-label" for="eventDate">Target Event Date *</label>
-                <input class="form-control" type="date" id="eventDate" required>
-              </div>
-
-              <!-- Location / City -->
-              <div class="form-group">
-                <label class="form-label" for="eventLocation">Location or City <span class="form-hint">(Optional)</span></label>
-                <input class="form-control" type="text" id="eventLocation" placeholder="e.g. Bengaluru, Mumbai, Home Backyard">
-              </div>
-
-              <!-- Guest Count -->
-              <div class="form-group">
-                <label class="form-label" for="eventGuests">Expected Guests *</label>
-                <input class="form-control" type="number" id="eventGuests" min="1" max="10000" placeholder="e.g. 50" required>
-              </div>
-
-              <!-- Budget & Currency -->
-              <div class="form-group">
-                <label class="form-label" for="eventBudget">Total Budget *</label>
-                <div style="display: flex; gap: 8px;">
-                  <select class="form-control" id="eventCurrency" style="max-width: 90px;">
-                    <option value="INR" selected>₹ INR</option>
-                    <option value="USD">$ USD</option>
-                    <option value="EUR">€ EUR</option>
-                    <option value="GBP">£ GBP</option>
-                  </select>
-                  <input class="form-control" type="number" id="eventBudget" min="0" step="100" placeholder="e.g. 25000" style="flex:1;" required>
+            
+            <!-- SECTION 1: THE OCCASION -->
+            <div class="form-editorial-section">
+              <div class="form-section-title">1. The Occasion</div>
+              <div class="form-section-desc">Name, nature of event, and timing.</div>
+              <div class="form-grid-editorial">
+                <div class="form-group-editorial full-width">
+                  <label class="form-label-editorial" for="eventName">Event Title *</label>
+                  <input class="form-control-editorial" type="text" id="eventName" placeholder="e.g. Maya & Kabir's Sunset Sangeet" required>
                 </div>
-              </div>
-
-              <!-- Planning Priority -->
-              <div class="form-group">
-                <label class="form-label" for="eventPriority">Planning Priority</label>
-                <select class="form-control" id="eventPriority">
-                  <option value="balanced" selected>Balanced Cost & Experience</option>
-                  <option value="cost_saving">Save Money (Budget Conscious)</option>
-                  <option value="premium">Premium Experience</option>
-                </select>
-              </div>
-
-              <!-- Venue Preference -->
-              <div class="form-group">
-                <label class="form-label" for="eventVenue">Venue Preference</label>
-                <select class="form-control" id="eventVenue">
-                  <option value="undecided" selected>Undecided / Flexible</option>
-                  <option value="home">Home / Backyard</option>
-                  <option value="banquet">Banquet Hall / Hotel</option>
-                  <option value="outdoor">Outdoor Lawn / Park</option>
-                  <option value="campus">College Campus / Auditorium</option>
-                </select>
-              </div>
-
-              <!-- Food Preference -->
-              <div class="form-group">
-                <label class="form-label" for="eventFood">Food & Catering Preference</label>
-                <select class="form-control" id="eventFood">
-                  <option value="vegetarian" selected>Vegetarian</option>
-                  <option value="non_vegetarian">Non-Vegetarian</option>
-                  <option value="vegan">Vegan</option>
-                  <option value="custom">Custom / Mixed Catering</option>
-                </select>
-              </div>
-
-              <!-- Theme & Desired Atmosphere -->
-              <div class="form-group">
-                <label class="form-label" for="eventTheme">Theme & Atmosphere <span class="form-hint">(Optional)</span></label>
-                <input class="form-control" type="text" id="eventTheme" placeholder="e.g. Cozy Bohemian, Retro Disco, Rustic Elegance">
-              </div>
-
-              <!-- Cultural / Regional Preferences -->
-              <div class="form-group">
-                <label class="form-label" for="eventCulture">Cultural / Regional Touches <span class="form-hint">(Optional)</span></label>
-                <input class="form-control" type="text" id="eventCulture" placeholder="e.g. Traditional South Indian, Punjabi sangeet vibes, Minimalist modern">
-              </div>
-
-              <!-- Additional Notes -->
-              <div class="form-group full-width">
-                <label class="form-label" for="eventNotes">Additional Notes & Specific Constraints <span class="form-hint">(Optional)</span></label>
-                <textarea class="form-control" id="eventNotes" placeholder="Mention dietary constraints, preferred sound curfew, surprise elements, or any specific vendor ideas..."></textarea>
+                <div class="form-group-editorial">
+                  <label class="form-label-editorial" for="eventType">Occasion Type *</label>
+                  <select class="form-control-editorial" id="eventType" required>
+                    <option value="birthday">Birthday Celebration</option>
+                    <option value="wedding">Wedding / Reception</option>
+                    <option value="college">College Fest / Hackathon</option>
+                    <option value="community">Community Gathering</option>
+                    <option value="custom">Bespoke Event</option>
+                  </select>
+                </div>
+                <div class="form-group-editorial">
+                  <label class="form-label-editorial" for="eventDate">Target Date *</label>
+                  <input class="form-control-editorial" type="date" id="eventDate" required>
+                </div>
               </div>
             </div>
 
-            <!-- AI Engine Selection / Demo Mode toggle -->
-            <div style="margin-top: 24px; padding: 14px 18px; background: var(--bg-surface-soft); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-              <div style="display:flex; align-items: center; gap: 10px;">
-                <i data-lucide="info" style="color: var(--forest-700); width: 18px; height: 18px;"></i>
-                <span style="font-size: 0.85rem; color: var(--forest-900);">
-                  Inference engine: <strong id="activeModelBadge">Configured Gemma Model</strong>
-                </span>
+            <!-- SECTION 2: GUEST LIST & LOCATION -->
+            <div class="form-editorial-section">
+              <div class="form-section-title">2. The Attendance & Setting</div>
+              <div class="form-section-desc">Capacity parameters and venue requirements.</div>
+              <div class="form-grid-editorial">
+                <div class="form-group-editorial">
+                  <label class="form-label-editorial" for="eventGuests">Expected Guests *</label>
+                  <input class="form-control-editorial" type="number" id="eventGuests" min="1" max="10000" placeholder="e.g. 60" required>
+                </div>
+                <div class="form-group-editorial">
+                  <label class="form-label-editorial" for="eventLocation">City or Venue Location</label>
+                  <input class="form-control-editorial" type="text" id="eventLocation" placeholder="e.g. Bangalore Botanical Garden">
+                </div>
+                <div class="form-group-editorial">
+                  <label class="form-label-editorial" for="eventVenue">Venue Format</label>
+                  <select class="form-control-editorial" id="eventVenue">
+                    <option value="undecided" selected>Flexible / Undecided</option>
+                    <option value="home">Private Residence / Backyard</option>
+                    <option value="banquet">Banquet Hall / Studio</option>
+                    <option value="outdoor">Lawn / Open Grounds</option>
+                    <option value="campus">Campus Auditorium</option>
+                  </select>
+                </div>
+                <div class="form-group-editorial">
+                  <label class="form-label-editorial" for="eventPriority">Planning Priority</label>
+                  <select class="form-control-editorial" id="eventPriority">
+                    <option value="balanced" selected>Balanced Cost & Experience</option>
+                    <option value="cost_saving">Thoughtful & Economical</option>
+                    <option value="premium">Elevated Experience</option>
+                  </select>
+                </div>
               </div>
-              <label style="font-size: 0.82rem; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            </div>
+
+            <!-- SECTION 3: THE BUDGET -->
+            <div class="form-editorial-section">
+              <div class="form-section-title">3. The Budget</div>
+              <div class="form-section-desc">Financial boundaries guarded by deterministic calculations.</div>
+              <div class="form-grid-editorial">
+                <div class="form-group-editorial full-width">
+                  <label class="form-label-editorial" for="eventBudget">Total Target Budget *</label>
+                  <div style="display: flex; gap: 10px;">
+                    <select class="form-control-editorial" id="eventCurrency" style="max-width: 100px;">
+                      <option value="INR" selected>₹ INR</option>
+                      <option value="USD">$ USD</option>
+                      <option value="EUR">€ EUR</option>
+                      <option value="GBP">£ GBP</option>
+                    </select>
+                    <input class="form-control-editorial" type="number" id="eventBudget" min="0" step="100" placeholder="e.g. 45000" style="flex:1;" required>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 4: THE ATMOSPHERE & CUISINE -->
+            <div class="form-editorial-section">
+              <div class="form-section-title">4. The Atmosphere & Cuisine</div>
+              <div class="form-section-desc">Aesthetic palette, cultural touches, and catering.</div>
+              <div class="form-grid-editorial">
+                <div class="form-group-editorial">
+                  <label class="form-label-editorial" for="eventFood">Food & Catering</label>
+                  <select class="form-control-editorial" id="eventFood">
+                    <option value="vegetarian" selected>Vegetarian Feast</option>
+                    <option value="non_vegetarian">Non-Vegetarian</option>
+                    <option value="vegan">Plant-Based / Vegan</option>
+                    <option value="custom">Curated Fusion</option>
+                  </select>
+                </div>
+                <div class="form-group-editorial">
+                  <label class="form-label-editorial" for="eventTheme">Theme & Aesthetic Vibe</label>
+                  <input class="form-control-editorial" type="text" id="eventTheme" placeholder="e.g. Earthy Botanical & Warm Lanterns">
+                </div>
+                <div class="form-group-editorial full-width">
+                  <label class="form-label-editorial" for="eventCulture">Cultural / Regional Touches</label>
+                  <input class="form-control-editorial" type="text" id="eventCulture" placeholder="e.g. Traditional acoustic sitar, contemporary fusion appetizers">
+                </div>
+                <div class="form-group-editorial full-width">
+                  <label class="form-label-editorial" for="eventNotes">Additional Notes & Specific Constraints</label>
+                  <textarea class="form-control-editorial" id="eventNotes" placeholder="Mention sound curfew, cake requirements, surprise elements, or any specific ideas..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Engine Bar & Submit -->
+            <div style="padding: 16px 20px; background-color: var(--bg-card); border-radius: var(--radius-xs); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+              <span style="font-size: 0.82rem; color: var(--text-secondary);">
+                Active Inference Engine: <strong style="color: var(--text-accent);" id="activeModelBadge">Gemma Model</strong>
+              </span>
+              <label style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; cursor: pointer;">
                 <input type="checkbox" id="checkForceDemo">
-                <span>Force Instant Demo Mode (Skip LLM query)</span>
+                <span>Instant Demo Mode (Zero AI wait)</span>
               </label>
             </div>
 
-            <!-- Submit Button -->
-            <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+            <div style="margin-top: 28px; display: flex; gap: 14px; justify-content: flex-end;">
               <button type="button" class="btn btn-outline" onclick="app.switchTab('tab-dashboard')">Cancel</button>
               <button type="submit" class="btn btn-primary" id="btnSubmitPlan">
-                <i data-lucide="sparkles"></i> Generate Event Plan
+                Compose Event Plan ↗
               </button>
             </div>
+
           </form>
         </div>
       </section>
 
-      <!-- ================= 3. ACTIVE PLAN VIEW (Multi-tabs) ================= -->
+      <!-- ================= 3. ACTIVE PLAN VIEW ================= -->
       <section id="tab-plan-view" class="tab-content">
-        <!-- Plan Header Card -->
-        <div class="card" style="margin-bottom: 24px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">
+        <!-- Plan Header Panel -->
+        <div class="card-panel" style="margin-bottom: 28px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
             <div>
-              <div style="display:flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                <span class="event-badge" id="planBadgeType">Birthday</span>
-                <span style="font-size: 0.78rem; color: var(--text-muted); background: var(--bg-surface-soft); padding: 3px 8px; border-radius: 99px;" id="planEngineTag">
-                  AI Generated
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <span class="event-type-pill" id="planBadgeType">Birthday</span>
+                <span style="font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-accent-muted);" id="planEngineTag">
+                  AI Composed
                 </span>
               </div>
-              <h2 style="font-size: 1.85rem; color: var(--forest-900); font-family: var(--font-serif);" id="planTitle">
+              <h1 style="font-family: var(--font-serif); font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 500; color: var(--text-main); line-height: 1.15;" id="planTitle">
                 Event Title
-              </h2>
-              <p style="color: var(--sage-500); font-weight: 500; font-size: 0.95rem; font-style: italic; margin-top: 2px;" id="planTagline">
+              </h1>
+              <p style="font-family: var(--font-serif); font-style: italic; color: var(--text-accent); font-size: 1.15rem; margin-top: 4px;" id="planTagline">
                 Tagline
               </p>
             </div>
 
             <div style="display: flex; gap: 10px; flex-wrap: wrap;" class="no-print">
-              <button class="btn btn-outline btn-sm" id="btnExportPrint" onclick="window.print()">
-                <i data-lucide="printer"></i> Print / PDF
+              <button class="btn btn-outline btn-sm" onclick="window.print()">
+                <i data-lucide="printer" style="width: 14px; height: 14px;"></i> Print / PDF
               </button>
-              <button class="btn btn-outline btn-sm" id="btnExportJson" onclick="app.exportCurrentPlanJson()">
-                <i data-lucide="download"></i> Download JSON
+              <button class="btn btn-outline btn-sm" onclick="app.exportCurrentPlanJson()">
+                <i data-lucide="download" style="width: 14px; height: 14px;"></i> Export JSON
               </button>
               <button class="btn btn-secondary btn-sm" onclick="app.saveCurrentPlanToDb()" id="btnSaveToDb">
-                <i data-lucide="save"></i> Save Plan
+                <i data-lucide="bookmark" style="width: 14px; height: 14px;"></i> Save Plan
               </button>
             </div>
           </div>
 
           <!-- Metadata Pill Bar -->
-          <div class="event-meta" style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle);">
-            <div class="event-meta-item">
-              <i data-lucide="calendar" style="width: 15px; height: 15px;"></i>
-              <span id="planMetaDate">Oct 25, 2026</span>
-            </div>
-            <div class="event-meta-item">
-              <i data-lucide="users" style="width: 15px; height: 15px;"></i>
-              <span id="planMetaGuests">40 Guests</span>
-            </div>
-            <div class="event-meta-item">
-              <i data-lucide="map-pin" style="width: 15px; height: 15px;"></i>
-              <span id="planMetaLocation">Bengaluru</span>
-            </div>
-            <div class="event-meta-item">
-              <i data-lucide="utensils" style="width: 15px; height: 15px;"></i>
-              <span id="planMetaFood">Vegetarian</span>
-            </div>
+          <div class="event-meta-editorial" style="padding-bottom: 18px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 18px;">
+            <span><i data-lucide="calendar" style="width: 14px; height: 14px;"></i> <strong id="planMetaDate">Oct 25, 2026</strong></span>
+            <span><i data-lucide="users" style="width: 14px; height: 14px;"></i> <strong id="planMetaGuests">40 Guests</strong></span>
+            <span><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> <strong id="planMetaLocation">Bengaluru</strong></span>
+            <span><i data-lucide="coffee" style="width: 14px; height: 14px;"></i> <strong id="planMetaFood">Vegetarian</strong></span>
           </div>
 
-          <!-- Overview Prose -->
-          <p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6;" id="planOverviewText">
-            Overview text...
+          <p style="font-size: 1rem; color: var(--text-secondary); line-height: 1.65; max-width: 900px;" id="planOverviewText">
+            Overview...
           </p>
         </div>
 
         <!-- Plan Sub Navigation -->
-        <div style="display:flex; gap: 8px; border-bottom: 2px solid var(--border-subtle); margin-bottom: 24px; overflow-x: auto;" class="no-print">
-          <button class="btn btn-sm btn-outline subnav-btn active" data-subtab="subtab-budget" onclick="app.switchSubTab('subtab-budget')">
-            <i data-lucide="wallet"></i> BudgetGuard
+        <div class="subnav-editorial no-print">
+          <button class="subnav-btn-editorial active" data-subtab="subtab-budget" onclick="app.switchSubTab('subtab-budget')">
+            <i data-lucide="pie-chart" style="width: 14px; height: 14px;"></i> BudgetGuard
           </button>
-          <button class="btn btn-sm btn-outline subnav-btn" data-subtab="subtab-timeline" onclick="app.switchSubTab('subtab-timeline')">
-            <i data-lucide="calendar-check"></i> LazyTimeline
+          <button class="subnav-btn-editorial" data-subtab="subtab-timeline" onclick="app.switchSubTab('subtab-timeline')">
+            <i data-lucide="clock" style="width: 14px; height: 14px;"></i> LazyTimeline
           </button>
-          <button class="btn btn-sm btn-outline subnav-btn" data-subtab="subtab-vendors" onclick="app.switchSubTab('subtab-vendors')">
-            <i data-lucide="briefcase"></i> Vendor & Checklist
+          <button class="subnav-btn-editorial" data-subtab="subtab-vendors" onclick="app.switchSubTab('subtab-vendors')">
+            <i data-lucide="briefcase" style="width: 14px; height: 14px;"></i> Vendors & Quotes
           </button>
-          <button class="btn btn-sm btn-outline subnav-btn" data-subtab="subtab-schedule" onclick="app.switchSubTab('subtab-schedule')">
-            <i data-lucide="clock"></i> Day Schedule
+          <button class="subnav-btn-editorial" data-subtab="subtab-schedule" onclick="app.switchSubTab('subtab-schedule')">
+            <i data-lucide="calendar-check" style="width: 14px; height: 14px;"></i> Day Flow
           </button>
-          <button class="btn btn-sm btn-outline subnav-btn" data-subtab="subtab-insights" onclick="app.switchSubTab('subtab-insights')">
-            <i data-lucide="lightbulb"></i> Tips & Contingency
+          <button class="subnav-btn-editorial" data-subtab="subtab-insights" onclick="app.switchSubTab('subtab-insights')">
+            <i data-lucide="feather" style="width: 14px; height: 14px;"></i> Insights & Contingencies
           </button>
         </div>
 
         <!-- SUBTAB 1: BUDGETGUARD -->
         <div id="subtab-budget" class="subtab-content active">
-          <div class="budget-overview-card">
-            <div class="budget-stats-row">
-              <div>
-                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">TARGET BUDGET</span>
-                <div style="font-size: 1.75rem; font-weight: 700; color: var(--forest-900);" id="bgTargetBudget">₹0</div>
+          <div class="budget-summary-panel">
+            <div class="budget-figures-row">
+              <div class="budget-figure-block">
+                <div class="metric-name">TARGET BUDGET</div>
+                <div class="metric-number" id="bgTargetBudget">₹0</div>
               </div>
-              <div>
-                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">TOTAL ESTIMATED SPEND</span>
-                <div style="font-size: 1.75rem; font-weight: 700; color: var(--forest-700);" id="bgPlannedSpend">₹0</div>
+              <div class="budget-figure-block">
+                <div class="metric-name">ESTIMATED SPEND</div>
+                <div class="metric-number" id="bgPlannedSpend">₹0</div>
               </div>
-              <div>
-                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">REMAINING BALANCE</span>
-                <div style="font-size: 1.75rem; font-weight: 700;" id="bgRemainingBalance">₹0</div>
+              <div class="budget-figure-block">
+                <div class="metric-name">REMAINING BALANCE</div>
+                <div class="metric-number" id="bgRemainingBalance">₹0</div>
               </div>
-              <div>
-                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">UTILIZATION</span>
-                <div style="font-size: 1.75rem; font-weight: 700; color: var(--forest-900);" id="bgUtilizationPct">0%</div>
+              <div class="budget-figure-block">
+                <div class="metric-name">UTILIZATION</div>
+                <div class="metric-number" id="bgUtilizationPct">0%</div>
               </div>
             </div>
 
-            <!-- Progress bar -->
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill" id="bgProgressFill" style="width: 0%;"></div>
+            <!-- Progress line -->
+            <div class="editorial-progress-container">
+              <div class="editorial-progress-fill" id="bgProgressFill" style="width: 0%;"></div>
             </div>
 
-            <!-- Over-budget warning banner -->
-            <div id="bgOverBudgetWarning" class="budget-warning-banner" style="display: none;">
-              <i data-lucide="alert-triangle"></i>
-              <span><strong>Budget Alert:</strong> Estimated spending exceeds your planned budget. Review individual categories below to adjust costs or trim non-essential items.</span>
+            <!-- Over-budget alert -->
+            <div id="bgOverBudgetWarning" class="budget-overrun-banner" style="display: none;">
+              <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+              <span><strong>Budget Alert:</strong> Estimated spending exceeds planned budget. Review and trim line items below.</span>
             </div>
           </div>
 
-          <!-- Budget Items Table -->
-          <div class="card">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div class="card-panel">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
               <div>
-                <h4 style="font-size: 1.15rem; color: var(--forest-900);">Itemized Category Allocations</h4>
-                <p style="font-size: 0.82rem; color: var(--text-muted);">Calculated deterministically in code. You can edit any estimate below — totals recalculate instantly.</p>
+                <span class="editorial-kicker">Deterministic Breakdown</span>
+                <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--text-main);">Itemized Expense Allocations</h3>
               </div>
               <button class="btn btn-outline btn-sm no-print" onclick="app.promptAddBudgetItem()">
-                <i data-lucide="plus"></i> Add Item
+                <i data-lucide="plus" style="width: 13px; height: 13px;"></i> Add Expense
               </button>
             </div>
 
             <div style="overflow-x: auto;">
-              <table class="custom-table" id="budgetTable">
+              <table class="table-editorial" id="budgetTable">
                 <thead>
                   <tr>
                     <th>Category</th>
@@ -492,9 +467,7 @@
                     <th class="no-print">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="budgetTableBody">
-                  <!-- Injected via JavaScript -->
-                </tbody>
+                <tbody id="budgetTableBody"></tbody>
               </table>
             </div>
           </div>
@@ -502,36 +475,35 @@
 
         <!-- SUBTAB 2: LAZYTIMELINE -->
         <div id="subtab-timeline" class="subtab-content" style="display: none;">
-          <div class="card" style="margin-bottom: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div class="card-panel" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
               <div>
-                <h4 style="font-size: 1.15rem; color: var(--forest-900);">Automated Preparation Timeline</h4>
-                <p style="font-size: 0.82rem; color: var(--text-muted);">Deadlines are computed relative to your event date. Mark tasks completed to track progress.</p>
+                <span class="editorial-kicker">Automated Scheduling</span>
+                <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--text-main);">Preparation Milestones</h3>
               </div>
-              <div style="display: flex; gap: 12px; align-items: center;" class="no-print">
-                <span style="font-size: 0.85rem; font-weight: 600; color: var(--forest-800);" id="taskCompletionStatus">0/0 completed</span>
+              <div style="display: flex; gap: 14px; align-items: center;" class="no-print">
+                <span style="font-size: 0.85rem; color: var(--text-accent);" id="taskCompletionStatus">0/0 completed</span>
                 <button class="btn btn-outline btn-sm" onclick="app.promptAddTask()">
-                  <i data-lucide="plus"></i> Add Task
+                  <i data-lucide="plus" style="width: 13px; height: 13px;"></i> Add Task
                 </button>
               </div>
             </div>
           </div>
 
-          <div class="timeline-list" id="timelineList">
-            <!-- Timeline items injected here -->
-          </div>
+          <div class="timeline-editorial-list" id="timelineList"></div>
         </div>
 
-        <!-- SUBTAB 3: VENDORS & SHOPPING -->
+        <!-- SUBTAB 3: VENDORS & QUOTES -->
         <div id="subtab-vendors" class="subtab-content" style="display: none;">
-          <div class="card" style="margin-bottom: 24px;">
-            <h4 style="font-size: 1.15rem; color: var(--forest-900); margin-bottom: 6px;">Vendor Directory & Quote Tracker</h4>
-            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-              AI recommends categories & questions to ask. Record your real vendor quotes below to compare against AI estimates.
+          <div class="card-panel" style="margin-bottom: 28px;">
+            <span class="editorial-kicker">Vendor Negotiations</span>
+            <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--text-main); margin-bottom: 6px;">Vendor Directory & Quote Comparison</h3>
+            <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 20px;">
+              AI recommends categories and key questions. Enter real vendor quotations to compare against estimates.
             </p>
 
             <div style="overflow-x: auto;">
-              <table class="custom-table" id="vendorTable">
+              <table class="table-editorial" id="vendorTable">
                 <thead>
                   <tr>
                     <th>Category</th>
@@ -542,76 +514,50 @@
                     <th class="no-print">Status</th>
                   </tr>
                 </thead>
-                <tbody id="vendorTableBody">
-                  <!-- Injected via app.js -->
-                </tbody>
+                <tbody id="vendorTableBody"></tbody>
               </table>
             </div>
           </div>
 
           <!-- Shopping Checklist -->
-          <div class="card">
-            <h4 style="font-size: 1.15rem; color: var(--forest-900); margin-bottom: 6px;">Shopping & Supplies Checklist</h4>
-            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-              Tick items off as you purchase them.
-            </p>
-            <div id="shoppingChecklistContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
-              <!-- Injected via app.js -->
-            </div>
+          <div class="card-panel">
+            <span class="editorial-kicker">Supplies & Provisions</span>
+            <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--text-main); margin-bottom: 18px;">Shopping Checklist</h3>
+            <div id="shoppingChecklistContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"></div>
           </div>
         </div>
 
-        <!-- SUBTAB 4: DAY SCHEDULE -->
+        <!-- SUBTAB 4: DAY FLOW -->
         <div id="subtab-schedule" class="subtab-content" style="display: none;">
-          <div class="card">
-            <h4 style="font-size: 1.15rem; color: var(--forest-900); margin-bottom: 6px;">Suggested Event Day Schedule</h4>
-            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 20px;">
-              Chronological flow designed to keep the atmosphere engaging while giving you ample room to relax.
-            </p>
-
-            <div id="scheduleTimelineContainer" style="display:flex; flex-direction: column; gap: 16px;">
-              <!-- Injected via app.js -->
-            </div>
+          <div class="card-panel">
+            <span class="editorial-kicker">Event Day Itinerary</span>
+            <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--text-main); margin-bottom: 20px;">Chronological Day Schedule</h3>
+            <div id="scheduleTimelineContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
           </div>
         </div>
 
-        <!-- SUBTAB 5: INSIGHTS & CONTINGENCY -->
+        <!-- SUBTAB 5: INSIGHTS & CONTINGENCIES -->
         <div id="subtab-insights" class="subtab-content" style="display: none;">
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
-            <!-- Theme & Decor ideas -->
-            <div class="card">
-              <h4 style="font-size: 1.1rem; color: var(--forest-900); display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <i data-lucide="palette" style="color: var(--sage-500);"></i> Theme & Decoration Ideas
-              </h4>
-              <ul id="planThemeList" style="list-style-type: none; display: flex; flex-direction: column; gap: 8px;">
-              </ul>
+            <div class="card-panel">
+              <span class="editorial-kicker">Aesthetic Palette</span>
+              <h4 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--text-main); margin-bottom: 12px;">Theme & Styling Concepts</h4>
+              <ul id="planThemeList" style="list-style: none; display: flex; flex-direction: column; gap: 10px;"></ul>
             </div>
-
-            <!-- Cost-Saving Suggestions -->
-            <div class="card">
-              <h4 style="font-size: 1.1rem; color: var(--forest-900); display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <i data-lucide="piggy-bank" style="color: var(--forest-700);"></i> Sloth-Approved Cost Savers
-              </h4>
-              <ul id="planCostSavingList" style="list-style-type: none; display: flex; flex-direction: column; gap: 8px;">
-              </ul>
+            <div class="card-panel">
+              <span class="editorial-kicker">Sloth-Approved Savings</span>
+              <h4 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--text-main); margin-bottom: 12px;">Cost-Saving Suggestions</h4>
+              <ul id="planCostSavingList" style="list-style: none; display: flex; flex-direction: column; gap: 10px;"></ul>
             </div>
-
-            <!-- Contingency Recommendations -->
-            <div class="card">
-              <h4 style="font-size: 1.1rem; color: var(--forest-900); display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <i data-lucide="shield-alert" style="color: var(--coral-500);"></i> Contingency Recommendations
-              </h4>
-              <ul id="planContingencyList" style="list-style-type: none; display: flex; flex-direction: column; gap: 8px;">
-              </ul>
+            <div class="card-panel">
+              <span class="editorial-kicker">Failsafes</span>
+              <h4 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--text-main); margin-bottom: 12px;">Contingency Measures</h4>
+              <ul id="planContingencyList" style="list-style: none; display: flex; flex-direction: column; gap: 10px;"></ul>
             </div>
-
-            <!-- Potential Risks -->
-            <div class="card">
-              <h4 style="font-size: 1.1rem; color: var(--forest-900); display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <i data-lucide="alert-circle" style="color: var(--warning);"></i> Potential Risks & Head-ups
-              </h4>
-              <ul id="planRisksList" style="list-style-type: none; display: flex; flex-direction: column; gap: 8px;">
-              </ul>
+            <div class="card-panel">
+              <span class="editorial-kicker">Head-ups</span>
+              <h4 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--text-main); margin-bottom: 12px;">Potential Risks & Mitigation</h4>
+              <ul id="planRisksList" style="list-style: none; display: flex; flex-direction: column; gap: 10px;"></ul>
             </div>
           </div>
         </div>
@@ -620,29 +566,24 @@
 
       <!-- ================= 4. SAVED EVENTS VIEW ================= -->
       <section id="tab-saved" class="tab-content">
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div class="section-header-editorial" style="margin-bottom: 28px;">
           <div>
-            <h3 style="font-size: 1.35rem; color: var(--forest-900); font-family: var(--font-serif);">Saved Event Plans</h3>
-            <p style="color: var(--text-muted); font-size: 0.88rem;">Stored locally in your SQLite database.</p>
+            <span class="editorial-kicker">Archive</span>
+            <h3>Saved Occasions</h3>
           </div>
           <button class="btn btn-outline btn-sm" onclick="app.loadSavedEvents()">
-            <i data-lucide="refresh-cw"></i> Refresh
+            <i data-lucide="refresh-cw" style="width: 13px; height: 13px;"></i> Refresh
           </button>
         </div>
 
-        <div id="savedEventsGrid" class="events-grid">
-          <!-- Populated by app.js -->
-        </div>
+        <div id="savedEventsGrid" class="events-editorial-grid"></div>
 
-        <div id="savedEmptyState" class="card" style="text-align: center; padding: 48px 24px; display: none;">
-          <div style="width: 56px; height: 56px; margin: 0 auto 16px auto; background: var(--forest-100); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--forest-800);">
-            <i data-lucide="inbox"></i>
-          </div>
-          <h4 style="font-size: 1.15rem; color: var(--forest-900); margin-bottom: 6px;">No Saved Plans in Database</h4>
-          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 18px;">
-            Create an event with EventPilot AI and click "Save Plan" to store it permanently.
+        <div id="savedEmptyState" class="card-panel" style="text-align: center; padding: 56px 24px; display: none;">
+          <h4 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--text-main); margin-bottom: 8px;">No Archived Plans</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+            Compose an event plan and select "Save Plan" to preserve it.
           </p>
-          <button class="btn btn-primary" onclick="app.switchTab('tab-create')">Create New Plan</button>
+          <button class="btn btn-primary" onclick="app.switchTab('tab-create')">Create New Plan ↗</button>
         </div>
       </section>
 
@@ -650,34 +591,19 @@
   </main>
 </div>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-card">
-    <div class="sloth-spinner">
-      <!-- Animated Sloth Icon -->
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="45" fill="#dceae2" />
-        <path d="M 35 48 C 35 34, 65 34, 65 48 C 65 62, 35 62, 35 48 Z" fill="#b08968" />
-        <ellipse cx="44" cy="45" rx="4" ry="5.5" fill="#7f5539" />
-        <ellipse cx="56" cy="45" rx="4" ry="5.5" fill="#7f5539" />
-        <circle cx="44" cy="45" r="1.5" fill="#ffffff" />
-        <circle cx="56" cy="45" r="1.5" fill="#ffffff" />
-        <path d="M 47 52 Q 50 55 53 52" stroke="#7f5539" stroke-width="2" stroke-linecap="round" fill="none" />
-      </svg>
-    </div>
-    <h3 style="font-size: 1.25rem; color: var(--forest-900); margin-bottom: 8px;" id="loadingTitle">
-      Channeling Your Inner Sloth...
-    </h3>
-    <p style="font-size: 0.88rem; color: var(--text-muted);" id="loadingSubtitle">
-      Configured Gemma model is crafting your budget-aware event plan.
-    </p>
+<!-- Editorial Loading Overlay -->
+<div class="editorial-loading-overlay" id="loadingOverlay">
+  <div class="editorial-loading-box">
+    <div class="loading-spinner-ring"></div>
+    <div class="loading-title-editorial" id="loadingTitle">Composing Your Plan...</div>
+    <div class="loading-sub-editorial" id="loadingSubtitle">Querying instruction-tuned Gemma model...</div>
   </div>
 </div>
 
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- JavaScript Logic -->
+<!-- Application Logic -->
 <script src="/static/app.js"></script>
 </body>
 </html>

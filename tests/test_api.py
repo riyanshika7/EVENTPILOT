@@ -1,5 +1,6 @@
 import pytest
 import os
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from datetime import date, timedelta
 from backend.main import app
@@ -23,6 +24,9 @@ def test_health_endpoint():
     assert data["app_name"] == "EventPilot AI"
     assert "environment" in data
     assert "sentry_enabled" in data
+    # Security headers check
+    assert response.headers.get("X-Content-Type-Options") == "nosniff"
+    assert response.headers.get("X-Frame-Options") == "DENY"
 
 def test_model_status_endpoint():
     response = client.get("/api/model/status")
@@ -67,8 +71,26 @@ def test_generate_event_demo_mode_records_span():
     diag = get_diagnostics_summary()
     assert diag["total_runs"] >= 1
 
+def test_generate_live_inference_failure_returns_bad_gateway_no_silent_fallback():
+    """Verify that when live inference fails, the system returns HTTP 502 with clear reason instead of silently faking AI."""
+    payload = {
+        "name": "Simulated Failing Event",
+        "event_type": "birthday",
+        "event_date": (date.today() + timedelta(days=30)).isoformat(),
+        "guest_count": 30,
+        "budget": 15000.0,
+        "currency": "INR"
+    }
+    # Mock generate_gemma_plan to simulate an inference timeout/connection error
+    with patch("backend.main.generate_gemma_plan", return_value=(False, {}, None, "Connection refused to inference endpoint")):
+        res = client.post("/api/events/generate?force_demo=false", json=payload)
+        assert res.status_code == 502
+        err = res.json()
+        assert "detail" in err
+        assert err["detail"]["error"] == "ModelInferenceFailed"
+
 def test_generate_validation_failure():
-    # Negative budget or 0 guests must return 400
+    # Negative budget or 0 guests must return 400 or 422
     bad_payload = {
         "name": "Bad Event",
         "event_type": "birthday",
@@ -77,7 +99,7 @@ def test_generate_validation_failure():
         "budget": -100.0
     }
     res = client.post("/api/events/generate", json=bad_payload)
-    assert res.status_code == 422 or res.status_code == 400
+    assert res.status_code in [400, 422]
 
 def test_save_and_retrieve_event_lifecycle():
     # 1. Generate plan in demo mode
@@ -110,6 +132,7 @@ def test_save_and_retrieve_event_lifecycle():
     list_res = client.get("/api/events")
     assert list_res.status_code == 200
     events = list_res.json()
+    assert len(events) >= 1
     assert any(e["id"] == event_id for e in events)
 
     # 5. Delete event

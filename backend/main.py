@@ -51,9 +51,19 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    """Enforces essential security headers across all API and static responses."""
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 @app.get("/api/health")
 async def health_check():
@@ -118,40 +128,42 @@ async def generate_event(req: EventCreateRequest, force_demo: bool = Query(False
         success, parsed_data, token_usage, err_msg = await generate_gemma_plan(prompt)
         elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
+        active_model = settings.MODEL_NAME or settings.GEMMA_MODEL
         if success and parsed_data:
-            with AISpanContext("event_plan.parse_output", "Parse and validate Gemma structured output"):
+            with AISpanContext("event_plan.parse_output", "Parse and validate model structured output"):
                 plan = construct_event_plan(
-                    req, parsed_data, ai_generated=True, model_name=settings.GEMMA_MODEL
+                    req, parsed_data, ai_generated=True, model_name=active_model
                 )
             
             record_diagnostics_event(
                 event_name=req.name,
                 outcome="success",
                 duration_ms=elapsed_ms,
-                model_identifier=settings.GEMMA_MODEL,
+                model_identifier=active_model,
                 provider=settings.AI_PROVIDER,
                 token_usage=token_usage
             )
             return plan
         else:
-            # Fallback when inference fails or is offline
-            logger.warning(f"Gemma model call failed or timed out: {err_msg}")
-            fallback_data = generate_deterministic_demo_plan(req)
-            plan = construct_event_plan(
-                req,
-                fallback_data,
-                ai_generated=False,
-                model_name=f"Deterministic Fallback (Gemma error: {err_msg[:60]}...)"
-            )
+            # When live inference fails, return a clear actionable error rather than silently fabricating output
+            logger.warning(f"AI model call failed or timed out: {err_msg}")
             record_diagnostics_event(
                 event_name=req.name,
-                outcome="fallback",
+                outcome="failed",
                 duration_ms=elapsed_ms,
-                model_identifier=settings.GEMMA_MODEL,
+                model_identifier=active_model,
                 provider=settings.AI_PROVIDER,
                 error=err_msg
             )
-            return plan
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail={
+                    "error": "ModelInferenceFailed",
+                    "message": f"Inference failed via provider '{settings.AI_PROVIDER}' for model '{active_model}'.",
+                    "cause": err_msg,
+                    "suggestion": "Verify that your model service is active or enable 'Instant Demo Mode' to test deterministic planning without live AI inference."
+                }
+            )
 
 @app.post("/api/events", response_model=EventPlan, status_code=status.HTTP_201_CREATED)
 async def create_or_save_event(plan: EventPlan):

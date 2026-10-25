@@ -6,9 +6,11 @@ class Settings(BaseSettings):
     APP_NAME: str = "EventPilot AI"
     APP_VERSION: str = "1.1.0"
     
-    # AI Provider & Gemma Configuration
+    # AI Provider & Model Configuration
     # Supported providers: "ollama", "openai_compatible", "demo"
     AI_PROVIDER: str = os.getenv("AI_PROVIDER", "ollama")
+    # Configurable model name: defaults to "gemma2:2b", or local "qwen2.5-coder:1.5b", or hosted "gemma2-9b-it"
+    MODEL_NAME: str = os.getenv("MODEL_NAME", os.getenv("GEMMA_MODEL", "gemma2:2b"))
     GEMMA_MODEL: str = os.getenv("GEMMA_MODEL", "gemma2:2b")
     INFERENCE_BASE_URL: str = os.getenv("INFERENCE_BASE_URL", "http://localhost:11434")
     INFERENCE_API_KEY: Optional[str] = os.getenv("INFERENCE_API_KEY", None)
