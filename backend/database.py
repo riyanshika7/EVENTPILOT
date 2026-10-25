@@ -22,7 +22,7 @@ def init_db():
     """Initializes the database schema."""
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("""
+    cursor.executescript("""
     CREATE TABLE IF NOT EXISTS events (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -36,6 +36,8 @@ def init_db():
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
     );
+    CREATE INDEX IF NOT EXISTS idx_events_updated_at ON events(updated_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_events_event_date ON events(event_date);
     """)
     conn.commit()
     conn.close()

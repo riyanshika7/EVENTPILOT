@@ -81,10 +81,28 @@ async def model_status():
     """Live connectivity check to configured Gemma endpoint."""
     return await check_gemma_status()
 
+from backend.demo_lab import (
+    parse_and_validate_budget_csv, get_sample_college_event_data, DemoLabParseResult
+)
+from pydantic import BaseModel, Field
+
+class CsvImportRequest(BaseModel):
+    csv_content: str = Field(..., max_length=102400)
+
 @app.get("/api/diagnostics")
 async def diagnostics():
     """In-memory telemetry summary of recent event runs."""
     return get_diagnostics_summary()
+
+@app.get("/api/demo-lab/sample")
+async def demo_lab_sample():
+    """Returns sample college event data for judge evaluation."""
+    return get_sample_college_event_data()
+
+@app.post("/api/demo-lab/import-budget-csv", response_model=DemoLabParseResult)
+async def demo_lab_import_budget(payload: CsvImportRequest):
+    """Safely parses and validates an uploaded budget CSV without modifying production databases."""
+    return parse_and_validate_budget_csv(payload.csv_content)
 
 @app.post("/api/events/generate", response_model=EventPlan)
 async def generate_event(req: EventCreateRequest, force_demo: bool = Query(False)):
