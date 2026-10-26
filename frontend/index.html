@@ -97,9 +97,8 @@
         <!-- Asymmetric Hero + Studio Cards Grid -->
         <div class="dashboard-editorial-grid">
           
-          <!-- Hero Editorial Panel -->
-          <div class="editorial-hero-panel">
-            <div>
+          <section class="hero-split">
+            <div class="hero-left">
               <span class="editorial-kicker">Event Planning Studio / Private Workspace</span>
               <h1 class="hero-headline">
                 Make room<br>
@@ -116,28 +115,27 @@
                 <button class="btn btn-secondary" onclick="app.switchTab('tab-saved')">
                   Explore your plans
                 </button>
-                <button class="btn btn-outline" onclick="app.fillDemoForm()">
-                  Sample details
-                </button>
               </div>
             </div>
-
-            <!-- Restrained Real Metadata Stats -->
-            <div class="hero-stats-row">
-              <div class="hero-stat-block">
-                <span class="hero-stat-label">Plans In Progress</span>
-                <span class="hero-stat-val" id="dashTotalEvents">0</span>
+            <div class="hero-right">
+              <div class="hero-doodle-grid">
+                <img src="/static/static/assets/doodle1.png" alt="Doodle 1" class="hero-doodle">
+                <img src="/static/static/assets/doodle2.png" alt="Doodle 2" class="hero-doodle">
+                <img src="/static/static/assets/doodle3.png" alt="Doodle 3" class="hero-doodle">
+                <img src="/static/static/assets/doodle4.png" alt="Doodle 4" class="hero-doodle">
               </div>
-              <div class="hero-stat-block">
-                <span class="hero-stat-label">Budgets Under Control</span>
-                <span class="hero-stat-val" id="dashTotalBudget">₹0</span>
-              </div>
-              <div class="hero-stat-block">
-                <span class="hero-stat-label">Pending Milestones</span>
-                <span class="hero-stat-val" id="dashPendingTasks">0</span>
+              <div class="hero-stats-row">
+                <div class="hero-stat-block">
+                  <span class="hero-stat-label">Plans In Progress</span>
+                  <span class="hero-stat-val" id="dashTotalEvents">0</span>
+                </div>
+                <div class="hero-stat-block">
+                  <span class="hero-stat-label">Budgets Under Control</span>
+                  <span class="hero-stat-val" id="dashTotalBudget">₹0</span>
+                </div>
               </div>
             </div>
-          </div>
+          </section>
 
           <!-- Aside Studio Panels -->
           <div class="editorial-aside-column">

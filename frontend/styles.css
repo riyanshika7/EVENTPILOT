@@ -7,27 +7,27 @@
 
 :root {
   /* Surfaces */
-  --bg-page: #11100f;
-  --bg-panel: #1b1815;
-  --bg-card: #241f1a;
-  --bg-surface-elevated: #2b241e;
-  --bg-surface-hover: #332b24;
+  --bg-page: #211A17;            /* Espresso */
+  --bg-panel: #34251F;           /* Dark chocolate */
+  --bg-card: #241F1A;            /* Card dark */
+  --bg-surface-elevated: #2B241E;/* Elevated */
+  --bg-surface-hover: #332B24;   /* Hover */
   --bg-input: #171513;
 
   /* Typography Colors */
-  --text-main: #f1e2cf;
-  --text-secondary: #b9a895;
-  --text-muted: #8c7e6f;
-  --text-accent: #f0b184;
-  --text-accent-muted: #d9ad82;
+  --text-main: #F8F1E7;          /* Warm cream */
+  --text-secondary: #EDE0CE;    /* Paper beige */
+  --text-muted: #C76E4B;         /* Terracotta for muted */
+  --text-accent: #E9B99A;        /* Peach */
+  --text-accent-muted: #89957A;  /* Muted sage */
 
   /* Borders & Dividers */
-  --border-subtle: rgba(241, 226, 207, 0.1);
-  --border-medium: rgba(241, 226, 207, 0.18);
-  --border-accent: rgba(240, 177, 132, 0.35);
+  --border-subtle: rgba(248, 241, 231, 0.1);
+  --border-medium: rgba(237, 224, 206, 0.18);
+  --border-accent: rgba(232, 199, 125, 0.35); /* Golden butter */
 
   /* Status Accents */
-  --success: #8ba88f;
+  --success: #8BA88F;
   --success-bg: rgba(139, 168, 143, 0.12);
   --warning: #d9a05b;
   --warning-bg: rgba(217, 160, 91, 0.12);
@@ -342,28 +342,35 @@ body {
 }
 
 /* Hero Panel */
-.editorial-hero-panel {
-  background: linear-gradient(145deg, var(--bg-panel) 0%, var(--bg-card) 100%);
+/* Hero Split Layout */
+.hero-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  background: var(--bg-card);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
-  padding: 44px 48px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  padding: 44px;
+  align-items: center;
 }
 
-.editorial-hero-panel::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 220px;
-  height: 220px;
-  background: radial-gradient(circle, rgba(240, 177, 132, 0.05) 0%, transparent 70%);
-  pointer-events: none;
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero-doodle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.hero-doodle {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
 }
 
 .hero-headline {

@@ -18,37 +18,6 @@
 **Core Tagline:** *You celebrate. EventPilot handles the planning.*
 
 ---
-
-## 🏆 Hacktoberfest Prize Category Alignments
-
-### 1. Best Use of Render
-- **Infrastructure-as-Code:** Deployed via [`render.yaml`](render.yaml) as a native Python web service on Render's free tier.
-- **Production Architecture:** FastAPI binds to `0.0.0.0` and respects dynamic `$PORT`. Implements a zero-overhead `/api/health` check endpoint compatible with Render health monitoring.
-- **Decoupled Hosted AI Inference:** Recognizes that Render free web instances do not contain dedicated GPUs or local Ollama daemons. Deployed instances cleanly route inference to hosted Gemma endpoints (e.g. Groq free tier with `gemma2-9b-it`) or fall back gracefully to deterministic demo planning with zero crashes.
-- **Storage Transparency:** Explicitly documents SQLite file persistence trade-offs on Render's ephemeral filesystem vs. production external database URLs.
-
-### 2. Best Use of Gemma
-- **Instruction-Tuned Architecture:** Designed specifically to leverage Google's open-weight **Gemma** family (`gemma2:2b`, `gemma:2b` locally, or `gemma2-9b-it` hosted).
-- **Flexible Provider Adapter:** Isolates model communication behind an async provider interface in [`backend/ai_service.py`](backend/ai_service.py), supporting:
-  - Local Ollama (`http://localhost:11434`)
-  - OpenAI-compatible hosted endpoints (Groq, Together, OpenRouter, vLLM)
-  - Offline demo mode for zero-latency testing
-- **Strict JSON Enforcement & Deterministic Grounding:** Gemma provides creative theming, schedules, vendor questions, and suggestions. Python deterministically computes all budget allocations, remaining balances, date offsets, and overdue deadlines.
-- **Hardware-Friendly on 8 GB RAM:** Specifically tested with lightweight Gemma models (`gemma2:2b` / `gemma:2b`) requiring under 2 GB RAM.
-
-### 3. Best Use of Sentry Agent Tracing
-- **Official SDK Integration:** Integrates `sentry-sdk` with FastAPI and Starlette spans.
-- **Granular AI Workflow Spans:** Each generation decomposes into connected spans:
-  - `event_plan.generate` (Root generation span)
-  - `event_plan.validate_input` (Input validation)
-  - `event_plan.model_inference` (HTTP call to Gemma model with token metadata)
-  - `event_plan.parse_output` (Pydantic schema validation)
-  - `event_plan.calculate_budget` (Deterministic financial allocations)
-  - `event_plan.build_timeline` (Date calculation & overdue checks)
-  - `event_plan.persist` (SQLite storage)
-- **Privacy-Safe Telemetry:** Defaults `send_default_pii=False`. Captures model names, durations, token counts, and error classes without leaking user event notes, addresses, or guest names.
-- **Local Diagnostics Ring Buffer:** Built-in in-memory diagnostic monitor exposed via `/api/diagnostics` for real-time latency and success tracking during local development.
-
 ---
 
 ## 📸 Screenshots & Interface Previews
@@ -159,54 +128,6 @@ http://localhost:8000
 Interactive Swagger API docs: `http://localhost:8000/docs`
 
 ---
-
-## ☁️ Render Deployment Guide
-
-EventPilot AI includes a turnkey [`render.yaml`](render.yaml) specification:
-
-1. **Push to GitHub:** Ensure your code is pushed to your GitHub repository.
-2. **Log into Render:** Go to [dashboard.render.com](https://dashboard.render.com).
-3. **New Blueprint / Web Service:**
-   - Select **New +** -> **Blueprint**, and connect your GitHub repository.
-   - Render detects `render.yaml` automatically.
-4. **Environment Variables on Render:**
-   - For **Hosted Gemma**:
-     - `AI_PROVIDER`: `openai_compatible`
-     - `GEMMA_MODEL`: `gemma2-9b-it` (e.g. via Groq free tier)
-     - `INFERENCE_BASE_URL`: `https://api.groq.com/openai/v1`
-     - `INFERENCE_API_KEY`: `<your_groq_api_key>`
-   - For **Sentry Tracing**:
-     - `SENTRY_DSN`: `https://your-key@sentry.io/project-id`
-     - `SENTRY_ENVIRONMENT`: `production`
-5. **Deploy:** Click **Apply**. Render will build dependencies, start `uvicorn`, and run automated health checks on `/api/health`.
-
-> **Notice regarding persistence on Render Free Tier:** Render free web services utilize an ephemeral filesystem. Data saved in `eventpilot.db` will reset when the instance sleeps or restarts. For persistent production data, connect a managed database via `DATABASE_URL`.
-
----
-
-## 🔍 Sentry Agent Tracing Setup & Walkthrough
-
-1. Create a free account at [sentry.io](https://sentry.io) and create a **Python / FastAPI** project.
-2. Copy your Project DSN and add it to your `.env`:
-   ```ini
-   SENTRY_DSN="https://examplePublicKey@o0.ingest.sentry.io/0"
-   SENTRY_ENVIRONMENT="development"
-   SENTRY_TRACES_SAMPLE_RATE=1.0
-   ```
-3. Start the server and generate an event plan from the UI.
-4. Open the **Performance / Traces** tab in Sentry:
-   - Locate the root transaction: `POST /api/events/generate`
-   - Inspect the child spans:
-     - `event_plan.validate_input`
-     - `event_plan.model_inference` (includes provider, model tag, character count)
-     - `event_plan.parse_output`
-     - `event_plan.calculate_budget`
-     - `event_plan.build_timeline`
-     - `event_plan.persist`
-5. **Local Telemetry Verification:** Visit `http://localhost:8000/api/diagnostics` to view local average durations, success rates, and token counts directly.
-
----
-
 ## 🧪 Automated Testing
 
 EventPilot AI includes 10 automated unit and integration tests:
