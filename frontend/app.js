@@ -854,7 +854,18 @@ class EventPilotApp {
 // Global App Instance
 let app;
 // Initialize after DOM is ready to ensure elements exist
-document.addEventListener('DOMContentLoaded', () => {
+// Immediately instantiate the global app and expose it on window
+if (!window.app) {
+  window.app = new EventPilotApp();
+}
+// Register a single store subscription after the app is created
+subscribe(state => {
+  renderSavedEventsGrid(state.savedEvents, {
+    onView: id => window.app?.openSavedEvent(id),
+    onDelete: id => window.app?.deleteEvent(id)
+  });
+  renderDashboardRecentGrid(state.savedEvents);
+});
   // Create the app instance
   app = new EventPilotApp();
   // expose globally for inline onclick handlers
