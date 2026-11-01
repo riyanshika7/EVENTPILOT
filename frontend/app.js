@@ -3,10 +3,17 @@
  * Pure Vanilla JavaScript: Responsive, Accessible, Deterministic Calculations
  */
 
+import { savePlan, loadPlans, deletePlan, loadPlan } from './savedEventsApi.js';
+import { renderSavedEventsGrid, renderDashboardRecentGrid } from './savedEventsUI.js';
+import { getState, setState, subscribe } from './store.js';
+import { getLocalToday } from './timelineUtils.js';
+import { escapeHtml } from './htmlUtils.js';
+
+
 class EventPilotApp {
   constructor() {
     this.currentPlan = null;
-    this.savedEvents = [];
+
     this.modelStatus = { available: false, model_available: false };
     this.init();
   }
@@ -282,7 +289,7 @@ class EventPilotApp {
     document.getElementById('planMetaFood').textContent = plan.food_preference || 'Standard';
 
     // Render Subtabs
-    this.renderBudgetGuard();
+    budgetUI.renderBudgetGuard();
     this.renderTimeline();
     this.renderVendors();
     this.renderShopping();
@@ -295,6 +302,18 @@ class EventPilotApp {
 
   /* ---------------- BudgetGuard Logic ---------------- */
   renderBudgetGuard() {
+    // Delegate rendering to the modular budget UI implementation
+    // The budget UI reads the current plan from the store (which mirrors this.currentPlan).
+    // Ensure the store is kept in sync before rendering.
+    // If the legacy this.currentPlan exists, sync it to the store.
+    if (this.currentPlan) {
+      // Lazy import to avoid circular dependency issues
+      import('./store.js').then(({ setState }) => {
+        setState(state => ({ currentPlan: this.currentPlan }));
+        import('./budgetUI.js').then(({ renderBudgetGuard }) => renderBudgetGuard());
+      });
+    }
+  }
     const plan = this.currentPlan;
     if (!plan) return;
 
@@ -437,14 +456,14 @@ class EventPilotApp {
       actual_cost: 0,
       notes: 'User added'
     });
-    this.renderBudgetGuard();
+    budgetUI.renderBudgetGuard();
     this.showToast('Item added to budget plan', 'success');
   }
 
   removeBudgetItem(idx) {
     if (confirm('Delete this budget item?')) {
       this.currentPlan.budget_items.splice(idx, 1);
-      this.renderBudgetGuard();
+      budgetUI.renderBudgetGuard();
       this.showToast('Item removed', 'success');
     }
   }
@@ -714,18 +733,20 @@ class EventPilotApp {
     try {
       const res = await fetch(`${this.getApiBaseUrl()}/api/events`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      this.savedEvents = await res.json();
-      
+      const events = await res.json();
+      // Update store with fetched events
+      setState(state => ({ ...state, savedEvents: events }));
+
       const countBadge = document.getElementById('savedCountBadge');
-      if (countBadge) countBadge.textContent = this.savedEvents.length;
+      if (countBadge) countBadge.textContent = events.length;
 
       // Update dashboard metric cards
       const totalEventsEl = document.getElementById('dashTotalEvents');
-      if (totalEventsEl) totalEventsEl.textContent = this.savedEvents.length;
+      if (totalEventsEl) totalEventsEl.textContent = events.length;
 
       let sumBudget = 0;
       let pendingTasks = 0;
-      this.savedEvents.forEach(e => {
+      events.forEach(e => {
         sumBudget += e.total_budget || 0;
         pendingTasks += (e.task_count - e.completed_task_count);
       });
@@ -736,92 +757,17 @@ class EventPilotApp {
       const dashTasksEl = document.getElementById('dashPendingTasks');
       if (dashTasksEl) dashTasksEl.textContent = pendingTasks;
 
-      this.renderSavedEventsGrid();
-      this.renderDashboardRecentGrid();
+      // UI rendering now handled via store subscription
     } catch (err) {
       console.warn('Error loading saved events:', err);
     }
   }
 
-  renderSavedEventsGrid() {
-    const grid = document.getElementById('savedEventsGrid');
-    const empty = document.getElementById('savedEmptyState');
-    if (!grid) return;
 
-    if (!this.savedEvents || this.savedEvents.length === 0) {
-      grid.style.display = 'none';
-      if (empty) empty.style.display = 'block';
-      return;
-    }
 
-    grid.style.display = 'grid';
-    if (empty) empty.style.display = 'none';
-    grid.innerHTML = '';
 
-    this.savedEvents.forEach(evt => {
-      grid.appendChild(this.createEventCardElement(evt));
-    });
 
-    if (window.lucide) window.lucide.createIcons();
-  }
 
-  renderDashboardRecentGrid() {
-    const grid = document.getElementById('dashboardEventsList');
-    const empty = document.getElementById('dashboardEmptyState');
-    if (!grid) return;
-
-    if (!this.savedEvents || this.savedEvents.length === 0) {
-      grid.style.display = 'none';
-      if (empty) empty.style.display = 'block';
-      return;
-    }
-
-    grid.style.display = 'grid';
-    if (empty) empty.style.display = 'none';
-    grid.innerHTML = '';
-
-    // Show recent 3
-    const recent = this.savedEvents.slice(0, 3);
-    recent.forEach(evt => {
-      grid.appendChild(this.createEventCardElement(evt));
-    });
-
-    if (window.lucide) window.lucide.createIcons();
-  }
-
-  createEventCardElement(evt) {
-    const card = document.createElement('div');
-    card.className = 'event-editorial-card';
-
-    card.innerHTML = `
-      <div class="card-top-row">
-        <span class="event-type-pill">${this.escapeHtml(evt.event_type)}</span>
-        <button class="btn btn-outline btn-sm no-print" onclick="app.deleteEvent('${evt.id}', event)" title="Delete event">
-          <i data-lucide="trash-2" style="width:13px;height:13px;color:var(--danger);"></i>
-        </button>
-      </div>
-
-      <div class="event-card-title">${this.escapeHtml(evt.name)}</div>
-
-      <div class="event-meta-editorial">
-        <span><i data-lucide="calendar" style="width:12px;height:12px;"></i> ${evt.event_date}</span>
-        <span><i data-lucide="users" style="width:12px;height:12px;"></i> ${evt.guest_count} guests</span>
-        <span><i data-lucide="wallet" style="width:12px;height:12px;"></i> ${evt.currency} ${Number(evt.total_budget).toLocaleString()}</span>
-      </div>
-
-      <div class="event-progress-track">
-        <span>Milestones</span>
-        <strong>${evt.completed_task_count}/${evt.task_count} completed</strong>
-      </div>
-
-      <div style="margin-top: auto; display: flex; gap: 8px;">
-        <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="app.openSavedEvent('${evt.id}')">
-          Open Occasion ↗
-        </button>
-      </div>
-    `;
-    return card;
-  }
 
   async openSavedEvent(eventId) {
     try {
@@ -907,7 +853,16 @@ class EventPilotApp {
 
 // Global App Instance
 let app;
+// Initialize after DOM is ready to ensure elements exist
 document.addEventListener('DOMContentLoaded', () => {
+  // Create the app instance
   app = new EventPilotApp();
-  window.app = app;
+  // Single store subscription – renders UI when state changes
+  subscribe(state => {
+    renderSavedEventsGrid(state.savedEvents, {
+      onView: id => app?.openSavedEvent(id),
+      onDelete: id => app?.deleteEvent(id)
+    });
+    renderDashboardRecentGrid(state.savedEvents);
+  });
 });
