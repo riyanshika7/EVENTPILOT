@@ -857,6 +857,8 @@ let app;
 document.addEventListener('DOMContentLoaded', () => {
   // Create the app instance
   app = new EventPilotApp();
+  // expose globally for inline onclick handlers
+  window.app = app;
   // Single store subscription – renders UI when state changes
   subscribe(state => {
     renderSavedEventsGrid(state.savedEvents, {
